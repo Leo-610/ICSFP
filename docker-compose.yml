@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+  icast-api:
+    build: .
+    container_name: icast-api
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./data:/app/data
+      - ./checkpoints:/app/checkpoints
+      - ./logs:/app/logs
+    environment:
+      - CUDA_VISIBLE_DEVICES=0
+    restart: unless-stopped
+    
+  icast-redis:
+    image: redis:7-alpine
+    container_name: icast-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    restart: unless-stopped
+
+volumes:
+  redis-data:

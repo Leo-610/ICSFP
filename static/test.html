@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>API测试</title>
+</head>
+<body>
+    <h1>API响应测试</h1>
+    <button onclick="testAPI()">测试预测API</button>
+    <pre id="result"></pre>
+    
+    <script>
+        async function testAPI() {
+            const resultEl = document.getElementById('result');
+            resultEl.textContent = '正在请求...';
+            
+            try {
+                const response = await fetch('http://localhost:5000/api/v1/predict/single', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        stock_symbol: 'AAPL',
+                        start_date: '2024-10-20',
+                        end_date: '2024-10-27',
+                        use_causal: true
+                    })
+                });
+                
+                console.log('响应状态:', response.status);
+                console.log('响应头:', response.headers);
+                
+                const text = await response.text();
+                console.log('原始响应文本:', text);
+                
+                const data = JSON.parse(text);
+                console.log('解析后的数据:', data);
+                console.log('数据类型:', typeof data);
+                console.log('数据键:', Object.keys(data));
+                
+                if (data.predictions) {
+                    console.log('predictions类型:', typeof data.predictions);
+                    console.log('predictions是数组?', Array.isArray(data.predictions));
+                    console.log('predictions长度:', data.predictions.length);
+                }
+                
+                resultEl.textContent = JSON.stringify(data, null, 2);
+                
+            } catch (error) {
+                console.error('错误:', error);
+                resultEl.textContent = '错误: ' + error.message;
+            }
+        }
+    </script>
+</body>
+</html>

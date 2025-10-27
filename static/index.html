@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ICSFP - 智能因果股票预测平台</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            text-align: center;
+        }
+        
+        .header h1 {
+            color: #667eea;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            color: #666;
+            font-size: 1.1em;
+        }
+        
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+        
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+        
+        .card h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            color: #333;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+        
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border-color 0.3s;
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .result-card {
+            grid-column: 1 / -1;
+            display: none;
+        }
+        
+        .result-card.show {
+            display: block;
+            animation: fadeIn 0.5s;
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .prediction-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .prediction-date {
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .prediction-direction {
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.9em;
+        }
+        
+        .direction-up {
+            background: #4caf50;
+            color: white;
+        }
+        
+        .direction-down {
+            background: #f44336;
+            color: white;
+        }
+        
+        .confidence {
+            color: #666;
+            font-size: 0.9em;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .loading.show {
+            display: block;
+        }
+        
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        
+        .info-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .info-label {
+            color: #666;
+            font-size: 0.9em;
+            margin-bottom: 5px;
+        }
+        
+        .info-value {
+            color: #667eea;
+            font-size: 1.5em;
+            font-weight: 600;
+        }
+        
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .checkbox-group input[type="checkbox"] {
+            width: auto;
+            margin: 0;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 头部 -->
+        <div class="header">
+            <h1>🔮 ICSFP</h1>
+            <p>Intelligent Causal Stock Forecasting Platform</p>
+            <p style="font-size: 0.9em; color: #999; margin-top: 10px;">智能因果股票预测平台</p>
+        </div>
+        
+        <!-- 主要内容 -->
+        <div class="main-content">
+            <!-- 单股票预测 -->
+            <div class="card">
+                <h2>📈 单股票预测</h2>
+                <form id="singlePredictForm">
+                    <div class="form-group">
+                        <label for="stockSymbol">股票代码</label>
+                        <select id="stockSymbol" required>
+                            <option value="">选择股票...</option>
+                            <option value="AAPL">AAPL - Apple</option>
+                            <option value="GOOG">GOOG - Google</option>
+                            <option value="MSFT">MSFT - Microsoft</option>
+                            <option value="JPM">JPM - JPMorgan</option>
+                            <option value="JNJ">JNJ - Johnson & Johnson</option>
+                            <option value="XOM">XOM - Exxon Mobil</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="startDate">开始日期</label>
+                        <input type="date" id="startDate" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="endDate">结束日期</label>
+                        <input type="date" id="endDate" required>
+                    </div>
+                    
+                    <div class="form-group checkbox-group">
+                        <input type="checkbox" id="useCausal" checked>
+                        <label for="useCausal" style="margin: 0;">使用因果图增强</label>
+                    </div>
+                    
+                    <button type="submit" class="btn">🚀 开始预测</button>
+                </form>
+            </div>
+            
+            <!-- 系统信息 -->
+            <div class="card">
+                <h2>ℹ️ 系统信息</h2>
+                <div id="systemInfo" class="info-grid">
+                    <div class="loading show">
+                        <div class="spinner"></div>
+                        <p>加载中...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 预测结果 -->
+        <div class="card result-card" id="resultCard">
+            <h2>📊 预测结果</h2>
+            <div class="loading" id="loadingSpinner">
+                <div class="spinner"></div>
+                <p>正在预测中...</p>
+            </div>
+            <div id="predictionResults"></div>
+        </div>
+    </div>
+    
+    <script>
+        // API基础URL
+        const API_BASE = 'http://localhost:5000/api/v1';
+        
+        // 初始化日期
+        const today = new Date();
+        const oneWeekAgo = new Date(today);
+        oneWeekAgo.setDate(today.getDate() - 7);
+        
+        document.getElementById('startDate').valueAsDate = oneWeekAgo;
+        document.getElementById('endDate').valueAsDate = today;
+        
+        // 加载系统信息
+        async function loadSystemInfo() {
+            try {
+                const response = await fetch(`${API_BASE}/model/info`);
+                const data = await response.json();
+                
+                const infoHtml = `
+                    <div class="info-item">
+                        <div class="info-label">平台状态</div>
+                        <div class="info-value">✅ 运行中</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">设备</div>
+                        <div class="info-value">${data.device || 'CPU'}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">可用股票</div>
+                        <div class="info-value">${data.total_stocks || '?'}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">因果图</div>
+                        <div class="info-value">${data.causal_graph_available ? '✓' : '✗'}</div>
+                    </div>
+                `;
+                
+                document.getElementById('systemInfo').innerHTML = infoHtml;
+            } catch (error) {
+                console.error('加载系统信息失败:', error);
+                document.getElementById('systemInfo').innerHTML = `
+                    <div class="info-item" style="grid-column: 1 / -1;">
+                        <div class="info-label">❌ 无法连接到API服务器</div>
+                    </div>
+                `;
+            }
+        }
+        
+        // 单股票预测
+        document.getElementById('singlePredictForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const stock = document.getElementById('stockSymbol').value;
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+            const useCausal = document.getElementById('useCausal').checked;
+            
+            // 显示加载中
+            const resultCard = document.getElementById('resultCard');
+            const loadingSpinner = document.getElementById('loadingSpinner');
+            const resultsDiv = document.getElementById('predictionResults');
+            
+            resultCard.classList.add('show');
+            loadingSpinner.classList.add('show');
+            resultsDiv.innerHTML = '';
+            
+            try {
+                const response = await fetch(`${API_BASE}/predict/single`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        stock_symbol: stock,
+                        start_date: startDate,
+                        end_date: endDate,
+                        use_causal: useCausal
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error('预测失败');
+                }
+                
+                const result = await response.json();
+                console.log('API响应:', result);
+                
+                // API返回格式: {status: 'success', data: {...}}
+                if (!result || result.status !== 'success' || !result.data) {
+                    throw new Error('服务器返回的数据格式不正确');
+                }
+                
+                const data = result.data;
+                
+                // 隐藏加载中
+                loadingSpinner.classList.remove('show');
+                
+                // 检查数据完整性
+                if (!data.predictions || !Array.isArray(data.predictions)) {
+                    throw new Error('预测数据格式不正确');
+                }
+                
+                if (data.predictions.length === 0) {
+                    resultsDiv.innerHTML = `
+                        <div style="text-align: center; color: #ff9800; padding: 20px;">
+                            <h3>⚠️ 无预测数据</h3>
+                            <p>该日期范围内没有可用的预测数据</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                // 显示结果
+                let html = `
+                    <div style="text-align: center; margin-bottom: 20px;">
+                        <h3 style="color: #667eea;">股票代码: ${data.stock_symbol || '未知'}</h3>
+                        <p style="color: #666;">
+                            模型状态: ${data.model_status === 'loaded' ? '✅ 已加载' : '⚠️ 示例模式'}
+                            ${useCausal ? ' | ✅ 启用因果图' : ''}
+                        </p>
+                    </div>
+                `;
+                
+                data.predictions.forEach(pred => {
+                    const dirClass = pred.predicted_direction === 'UP' ? 'direction-up' : 'direction-down';
+                    const upProb = (pred.probabilities.UP * 100).toFixed(1);
+                    const downProb = (pred.probabilities.DOWN * 100).toFixed(1);
+                    
+                    html += `
+                        <div class="prediction-item">
+                            <div>
+                                <div class="prediction-date">${pred.date}</div>
+                                <div class="confidence">
+                                    📈 ${upProb}% | 📉 ${downProb}%
+                                </div>
+                            </div>
+                            <div>
+                                <span class="prediction-direction ${dirClass}">
+                                    ${pred.predicted_direction === 'UP' ? '↗ 上涨' : '↘ 下跌'}
+                                </span>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                resultsDiv.innerHTML = html;
+                
+            } catch (error) {
+                console.error('预测错误:', error);
+                loadingSpinner.classList.remove('show');
+                resultsDiv.innerHTML = `
+                    <div style="text-align: center; color: #f44336; padding: 20px;">
+                        <h3>❌ 预测失败</h3>
+                        <p>${error.message}</p>
+                        <p style="font-size: 0.9em; color: #999; margin-top: 10px;">
+                            请检查：<br>
+                            1. API服务器是否正常运行<br>
+                            2. 网络连接是否正常<br>
+                            3. 查看浏览器控制台获取详细信息
+                        </p>
+                    </div>
+                `;
+            }
+        });
+        
+        // 页面加载时获取系统信息
+        loadSystemInfo();
+    </script>
+</body>
+</html>

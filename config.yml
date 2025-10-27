@@ -1,0 +1,188 @@
+dir_name: outputs
+task_name: stock_causal_discovery
+
+log:
+  stdout: true
+  stderr: false
+  tensorboard: true
+
+model:
+  mode: 'all'
+  variant_type: 'hedge' # hedge, tech, fund, discriminative
+  alpha: 0.5 # 0.1, 0.3, 0.5, 0.7, 0.9, 1.0
+  dropout_vmd_in: 0.3
+  dropout_mel_in: 0.3
+  n_epochs: 15
+  batch_size: 32
+
+  kl_lambda_anneal_rate: 0.005  # 0.005, 0.002, 0.001, 0.0005
+  kl_lambda_start_step: 0
+  daily_att: 'y'  # y, g
+
+  vmd_rec: 'zh'  # zh or h
+
+  opt: 'adam'  # sgd, adam
+  lr: 0.001
+  clip: 15.0
+
+  y_size: 2
+  use_constant_kl_lambda: 0
+  constant_kl_lambda: 0.1
+
+  word_embed_type: 'glove'
+  weight_init: 'xavier-uniform'
+  mel_cell_type: 'gru'  # basic, gru, ln-lstm
+  vmd_cell_type: 'gru'  # basic, gru, ln-lstm
+
+  word_embed_size: 50
+  stock_embed_size: 150
+  init_stock_with_word: 0
+  mel_h_size: 100
+  h_size: 150
+  g_size: 50
+
+  shuffle: 1
+  max_n_days: 5
+  max_n_msgs: 30
+  max_n_words: 40
+
+  decay_step: 100
+  decay_rate: 0.96
+  momentum: 0.9
+
+  use_in_bn: 0
+  use_o_bn: 0
+  use_g_bn: 0
+  dropout_mel: 0.0
+  dropout_ce: 0.0
+  dropout_vmd: 0.0
+
+dates:
+  train_start_date: '2014-01-01'
+  train_end_date: '2015-08-01'
+  dev_start_date: '2015-08-01'
+  dev_end_date: '2015-10-01'
+  test_start_date: '2015-10-01'
+  test_end_date: '2016-01-01'
+
+data:
+  # 股票数据特定配置
+  name: stock_returns
+  feature: return  # return, close, high, low
+  normalization: standard  # standard, minmax, none
+  
+  # 数据时间范围（使用StockNet的配置）
+  date  _range:
+    train_start: '2014-01-01'
+    train_end: '2015-08-01'
+    test_start: '2015-08-01'
+    test_end: '2015-10-01'
+  
+  # 股票选择
+  stock_selection:
+    method: all  # all, sector, manual
+    sectors: [tech, finance]  # 当method=sector时使用
+    stocks: []  # 当method=manual时使用
+
+  # 股票列表（按板块分类）
+  stock_list:
+    materials: ['XOM', 'RDS-B', 'PTR', 'CVX', 'TOT', 'BP', 'BHP', 'SNP', 'SLB', 'BBL']
+    consumer_goods: ['AAPL', 'PG', 'BUD', 'KO', 'PM', 'TM', 'PEP', 'UN', 'UL', 'MO']
+    healthcare: ['JNJ', 'PFE', 'NVS', 'UNH', 'MRK', 'AMGN', 'MDT', 'ABBV', 'SNY', 'CELG']
+    services: ['AMZN', 'BABA', 'WMT', 'CMCSA', 'HD', 'DIS', 'MCD', 'CHTR', 'UPS', 'PCLN']
+    utilities: ['NEE', 'DUK', 'D', 'SO', 'NGG', 'AEP', 'PCG', 'EXC', 'SRE', 'PPL']
+    cong: ['IEP', 'HRG', 'CODI', 'REX', 'SPLP', 'PICO', 'AGFS', 'GMRE']
+    finance: ['BCH', 'BSAC', 'BRK-A', 'JPM', 'WFC', 'BAC', 'V', 'C', 'HSBC', 'MA']
+    industrial_goods: ['GE', 'MMM', 'BA', 'HON', 'UTX', 'LMT', 'CAT', 'GD', 'DHR', 'ABB']
+    tech: ['GOOG', 'MSFT', 'FB', 'T', 'CHL', 'ORCL', 'TSM', 'VZ', 'INTC', 'CSCO']
+
+  # 缺失数据配置
+  missing: 
+    name: mixed  # random, block, mixed
+    params:
+      p_missing: 0.3
+      block_size_min: 10
+      block_size_max: 50
+      
+reproduc:
+  seed: 42
+  benchmark: false
+  deterministic: true
+
+sota:
+  cuts_plus:
+    # 网络结构
+    n_nodes: auto
+    input_step: 1
+    batch_size: 128
+    data_dim: 1
+    total_epoch: 100
+    
+    # 分组策略 - 针对股票数据优化
+    n_groups: 16
+    group_policy: multiply_2_every_25
+    
+    # 监督策略
+    supervision_policy: masked_before_150
+    fill_policy: rate_0.1_after_25
+    show_graph_every: 20
+    
+    # 数据预测模型 - 针对金融时间序列优化
+    data_pred:
+      model: multi_lstm
+      pred_step: 1
+      mlp_hid: 64
+      gru_layers: 2
+      shared_weights_decoder: false
+      concat_h: true
+      lr_data_start: 5e-3
+      lr_data_end: 1e-4
+      weight_decay: 1e-4
+      prob: true
+      dropout: 0.2  # 防止过拟合
+      
+    # 图发现参数 - 针对股票相关性优化
+    graph_discov:
+      lambda_s_start: 5e-2  # 稀疏性参数
+      lambda_s_end: 5e-3
+      lr_graph_start: 5e-4
+      lr_graph_end: 5e-5
+      start_tau: 1
+      end_tau: 0.1
+      dynamic_sampling_milestones: [0]
+      dynamic_sampling_periods: [1]
+      
+    # 因果阈值 - 股票市场通常相关性较低
+    causal_thres: value_0.3
+    
+# 分析配置
+analysis:
+  top_k_relationships: 20
+  save_figures: true
+  figure_format: png
+  figure_dpi: 300
+
+
+stocks:
+  materials: ['XOM', 'RDS-B', 'PTR', 'CVX', 'TOT', 'BP', 'BHP', 'SNP', 'SLB', 'BBL']
+  consumer_goods: ['AAPL', 'PG', 'BUD', 'KO', 'PM', 'TM', 'PEP', 'UN', 'UL', 'MO']
+  healthcare: ['JNJ', 'PFE', 'NVS', 'UNH', 'MRK', 'AMGN', 'MDT', 'ABBV', 'SNY', 'CELG']
+  services: ['AMZN', 'BABA', 'WMT', 'CMCSA', 'HD', 'DIS', 'MCD', 'CHTR', 'UPS', 'PCLN']
+  utilities: ['NEE', 'DUK', 'D', 'SO', 'NGG', 'AEP', 'PCG', 'EXC', 'SRE', 'PPL']
+  cong: ['IEP', 'HRG', 'CODI', 'REX', 'SPLP', 'PICO', 'AGFS', 'GMRE']
+  finance: ['BCH', 'BSAC', 'BRK-A', 'JPM', 'WFC', 'BAC', 'V', 'C', 'HSBC', 'MA']
+  industrial_goods: ['GE', 'MMM', 'BA', 'HON', 'UTX', 'LMT', 'CAT', 'GD', 'DHR', 'ABB']
+  tech: ['GOOG', 'MSFT', 'FB', 'T', 'CHL', 'ORCL', 'TSM', 'VZ', 'INTC', 'CSCO']
+
+paths:
+  data: 'data/'
+  tweet_retrieved: 'tweet/raw'
+  tweet_preprocessed: 'tweet/preprocessed'
+  price: 'price/preprocessed'
+  res: 'res/'
+  glove: 'glove.twitter.27B.50d.txt'
+  vocab_tweet: 'vocab.txt'
+  graphs: 'graphs'
+  checkpoints: 'checkpoints'
+  log: 'log/'
+  root: 'HCSF/'
