@@ -56,6 +56,24 @@ def create_app(config_path='config.yml'):
         """返回Web界面"""
         return app.send_static_file('index.html')
     
+    # 关于页面路由
+    @app.route('/about')
+    def about():
+        """返回关于页面"""
+        return app.send_static_file('about.html')
+    
+    # Favicon 路由
+    @app.route('/favicon.ico')
+    def favicon():
+        """返回favicon或404"""
+        from flask import send_from_directory
+        import os
+        favicon_path = os.path.join(app.root_path, 'static', 'favicon.ico')
+        if os.path.exists(favicon_path):
+            return send_from_directory(os.path.join(app.root_path, 'static'),
+                                     'favicon.ico', mimetype='image/vnd.microsoft.icon')
+        return '', 204  # No Content
+    
     # 健康检查端点
     @app.route('/health', methods=['GET'])
     def health_check():
