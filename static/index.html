@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ICSFP - 智能因果股票预测平台</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3.0.1/dist/chartjs-plugin-annotation.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -11,131 +14,360 @@
             box-sizing: border-box;
         }
         
+        :root {
+            --primary-color: #0066FF;
+            --secondary-color: #00C48C;
+            --danger-color: #FF5757;
+            --warning-color: #FFB020;
+            --background-dark: #0B0E11;
+            --background-light: #131722;
+            --surface-color: #1E222D;
+            --text-primary: #D1D4DC;
+            --text-secondary: #787B86;
+            --border-color: #2A2E39;
+            --success-bg: rgba(0, 196, 140, 0.1);
+            --danger-bg: rgba(255, 87, 87, 0.1);
+        }
+        
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--background-dark);
+            color: var(--text-primary);
             min-height: 100vh;
-            padding: 20px;
+            line-height: 1.6;
         }
         
-        .container {
-            max-width: 1200px;
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: var(--background-light);
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: #3A3E4A;
+        }
+        
+        /* Navigation Bar */
+        .navbar {
+            background: var(--surface-color);
+            border-bottom: 1px solid var(--border-color);
+            padding: 0 24px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .nav-container {
+            max-width: 1400px;
             margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 64px;
         }
         
-        .header {
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 15px;
-            padding: 30px;
-            margin-bottom: 30px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-            text-align: center;
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary-color);
         }
         
-        .header h1 {
-            color: #667eea;
-            font-size: 2.5em;
-            margin-bottom: 10px;
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
         }
         
-        .header p {
-            color: #666;
-            font-size: 1.1em;
+        .nav-links {
+            display: flex;
+            gap: 8px;
+            align-items: center;
         }
         
+        .nav-link {
+            padding: 8px 16px;
+            border-radius: 6px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        
+        .nav-link:hover {
+            background: var(--background-light);
+            color: var(--text-primary);
+        }
+        
+        .nav-link.active {
+            background: var(--primary-color);
+            color: white;
+        }
+        
+        /* Container */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+        
+        /* Page Header */
+        .page-header {
+            margin-bottom: 32px;
+        }
+        
+        .page-title {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .page-subtitle {
+            color: var(--text-secondary);
+            font-size: 16px;
+        }
+        
+        /* Stats Bar */
+        .stats-bar {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        
+        .stat-card {
+            background: var(--surface-color);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            transition: all 0.3s;
+        }
+        
+        .stat-card:hover {
+            border-color: var(--primary-color);
+            transform: translateY(-2px);
+        }
+        
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 13px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+        
+        .stat-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .stat-icon {
+            font-size: 24px;
+        }
+        
+        .stat-trend {
+            font-size: 14px;
+            margin-top: 8px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .trend-up {
+            color: var(--secondary-color);
+        }
+        
+        .trend-down {
+            color: var(--danger-color);
+        }
+        
+        /* Main Layout */
         .main-content {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 30px;
+            grid-template-columns: 380px 1fr;
+            gap: 24px;
+            align-items: start;
         }
         
-        @media (max-width: 768px) {
+        @media (max-width: 1024px) {
             .main-content {
                 grid-template-columns: 1fr;
             }
         }
         
+        /* Card Styles */
         .card {
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 15px;
-            padding: 25px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            background: var(--surface-color);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            overflow: hidden;
         }
         
-        .card h2 {
-            color: #667eea;
-            margin-bottom: 20px;
-            font-size: 1.5em;
-            border-bottom: 2px solid #667eea;
-            padding-bottom: 10px;
+        .card-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
         }
         
+        .card-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .card-body {
+            padding: 24px;
+        }
+        
+        /* Form Styles */
         .form-group {
             margin-bottom: 20px;
         }
         
-        .form-group label {
+        .form-label {
             display: block;
-            color: #333;
+            color: var(--text-primary);
             margin-bottom: 8px;
-            font-weight: 600;
+            font-size: 14px;
+            font-weight: 500;
         }
         
-        .form-group input,
-        .form-group select {
+        .form-input,
+        .form-select {
             width: 100%;
-            padding: 12px;
-            border: 2px solid #e0e0e0;
+            padding: 12px 16px;
+            background: var(--background-dark);
+            border: 1px solid var(--border-color);
             border-radius: 8px;
-            font-size: 1em;
-            transition: border-color 0.3s;
+            color: var(--text-primary);
+            font-size: 14px;
+            font-family: inherit;
+            transition: all 0.2s;
         }
         
-        .form-group input:focus,
-        .form-group select:focus {
+        .form-input:focus,
+        .form-select:focus {
             outline: none;
-            border-color: #667eea;
+            border-color: var(--primary-color);
+            background: var(--background-light);
         }
         
+        .form-input::placeholder {
+            color: var(--text-secondary);
+        }
+        
+        /* Button Styles */
         .btn {
-            width: 100%;
-            padding: 15px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+            padding: 12px 24px;
             border: none;
             border-radius: 8px;
-            font-size: 1.1em;
+            font-size: 14px;
             font-weight: 600;
             cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
         }
         
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
         }
         
-        .btn:active {
+        .btn-primary:hover {
+            background: #0052CC;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 102, 255, 0.3);
+        }
+        
+        .btn-primary:active {
             transform: translateY(0);
         }
         
-        .btn:disabled {
-            background: #ccc;
-            cursor: not-allowed;
-            transform: none;
+        .btn-block {
+            width: 100%;
         }
         
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+        
+        /* Checkbox */
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px;
+            background: var(--background-dark);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .checkbox-group:hover {
+            background: var(--background-light);
+        }
+        
+        .checkbox-group input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: var(--primary-color);
+        }
+        
+        .checkbox-label {
+            color: var(--text-primary);
+            font-size: 14px;
+            cursor: pointer;
+            user-select: none;
+        }
+        
+        /* Prediction Results */
         .result-card {
-            grid-column: 1 / -1;
             display: none;
+            animation: slideIn 0.4s ease-out;
         }
         
         .result-card.show {
             display: block;
-            animation: fadeIn 0.5s;
         }
         
-        @keyframes fadeIn {
+        @keyframes slideIn {
             from {
                 opacity: 0;
                 transform: translateY(20px);
@@ -146,47 +378,126 @@
             }
         }
         
-        .prediction-item {
-            background: #f8f9fa;
-            padding: 15px;
+        .prediction-header {
+            text-align: center;
+            padding: 24px;
+            background: var(--background-dark);
             border-radius: 8px;
-            margin-bottom: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .prediction-stock {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 8px;
+        }
+        
+        .prediction-meta {
+            color: var(--text-secondary);
+            font-size: 14px;
             display: flex;
-            justify-content: space-between;
             align-items: center;
+            justify-content: center;
+            gap: 16px;
+        }
+        
+        .prediction-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .prediction-item {
+            background: var(--background-dark);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 16px;
+            display: grid;
+            grid-template-columns: 120px 1fr auto;
+            align-items: center;
+            gap: 16px;
+            transition: all 0.2s;
+        }
+        
+        .prediction-item:hover {
+            border-color: var(--primary-color);
+            transform: translateX(4px);
         }
         
         .prediction-date {
             font-weight: 600;
-            color: #333;
+            color: var(--text-primary);
+            font-size: 14px;
         }
         
-        .prediction-direction {
-            padding: 5px 15px;
+        .prediction-probabilities {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+        }
+        
+        .prob-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+        }
+        
+        .prob-label {
+            color: var(--text-secondary);
+        }
+        
+        .prob-value {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        
+        .prob-bar {
+            height: 4px;
+            background: var(--border-color);
+            border-radius: 2px;
+            overflow: hidden;
+            width: 60px;
+        }
+        
+        .prob-fill {
+            height: 100%;
+            transition: width 0.3s;
+        }
+        
+        .prob-fill.up {
+            background: var(--secondary-color);
+        }
+        
+        .prob-fill.down {
+            background: var(--danger-color);
+        }
+        
+        .prediction-badge {
+            padding: 6px 16px;
             border-radius: 20px;
             font-weight: 600;
-            font-size: 0.9em;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
         
-        .direction-up {
-            background: #4caf50;
-            color: white;
+        .badge-up {
+            background: var(--success-bg);
+            color: var(--secondary-color);
         }
         
-        .direction-down {
-            background: #f44336;
-            color: white;
+        .badge-down {
+            background: var(--danger-bg);
+            color: var(--danger-color);
         }
         
-        .confidence {
-            color: #666;
-            font-size: 0.9em;
-        }
-        
+        /* Loading Spinner */
         .loading {
             display: none;
             text-align: center;
-            padding: 20px;
+            padding: 40px;
         }
         
         .loading.show {
@@ -194,131 +505,485 @@
         }
         
         .spinner {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #667eea;
+            width: 48px;
+            height: 48px;
+            border: 4px solid var(--border-color);
+            border-top-color: var(--primary-color);
             border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 10px;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 16px;
         }
         
         @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+            to { transform: rotate(360deg); }
         }
         
-        .info-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
+        .loading-text {
+            color: var(--text-secondary);
+            font-size: 14px;
         }
         
-        .info-item {
-            background: #f8f9fa;
-            padding: 15px;
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-secondary);
+        }
+        
+        .empty-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+        
+        .empty-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+        
+        .empty-description {
+            font-size: 14px;
+        }
+        
+        /* Error State */
+        .error-state {
+            background: var(--danger-bg);
+            border: 1px solid var(--danger-color);
             border-radius: 8px;
+            padding: 20px;
             text-align: center;
         }
         
-        .info-label {
-            color: #666;
-            font-size: 0.9em;
-            margin-bottom: 5px;
+        .error-icon {
+            font-size: 36px;
+            margin-bottom: 12px;
         }
         
-        .info-value {
-            color: #667eea;
-            font-size: 1.5em;
+        .error-title {
+            color: var(--danger-color);
             font-weight: 600;
+            margin-bottom: 8px;
         }
         
-        .checkbox-group {
+        .error-message {
+            color: var(--text-secondary);
+            font-size: 14px;
+            margin-bottom: 12px;
+        }
+        
+        .error-details {
+            font-size: 12px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+        
+        /* Utility Classes */
+        .text-center {
+            text-align: center;
+        }
+        
+        .mb-4 {
+            margin-bottom: 16px;
+        }
+        
+        .mt-4 {
+            margin-top: 16px;
+        }
+        
+        /* Animations */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.3s ease-in;
+        }
+        
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        @keyframes scaleIn {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+        
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.5;
+            }
+        }
+        
+        .slide-in-left {
+            animation: slideInLeft 0.4s ease-out;
+        }
+        
+        .slide-in-right {
+            animation: slideInRight 0.4s ease-out;
+        }
+        
+        .scale-in {
+            animation: scaleIn 0.3s ease-out;
+        }
+        
+        /* Chart Container */
+        .chart-container {
+            position: relative;
+            height: 400px;
+            margin: 20px 0;
+            background: var(--background-dark);
+            border-radius: 8px;
+            padding: 20px;
+            border: 1px solid var(--border-color);
+        }
+        
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        
+        .chart-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        
+        .chart-legend {
+            display: flex;
+            gap: 16px;
+            font-size: 12px;
+        }
+        
+        .legend-item {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 6px;
         }
         
-        .checkbox-group input[type="checkbox"] {
-            width: auto;
-            margin: 0;
-            cursor: pointer;
+        .legend-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 2px;
+        }
+        
+        /* Stats Animation */
+        .stat-value.loading {
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+        
+        /* Probability Bars Animation */
+        @keyframes fillBar {
+            from {
+                width: 0;
+            }
+        }
+        
+        .prob-fill {
+            animation: fillBar 0.8s ease-out;
+        }
+        
+        /* Prediction Item Hover Effect */
+        .prediction-item {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .prediction-item::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 3px;
+            background: var(--primary-color);
+            transform: scaleY(0);
+            transition: transform 0.3s;
+        }
+        
+        .prediction-item:hover::before {
+            transform: scaleY(1);
+        }
+        
+        /* Tooltip */
+        .tooltip {
+            position: absolute;
+            background: var(--surface-color);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 8px 12px;
+            font-size: 12px;
+            color: var(--text-primary);
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.2s;
+            z-index: 1000;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+        
+        .tooltip.show {
+            opacity: 1;
+        }
+        
+        /* Summary Cards */
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+        
+        .summary-card {
+            background: var(--background-dark);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 16px;
+            text-align: center;
+            transition: all 0.3s;
+        }
+        
+        .summary-card:hover {
+            border-color: var(--primary-color);
+            transform: translateY(-2px);
+        }
+        
+        .summary-label {
+            color: var(--text-secondary);
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+        
+        .summary-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+        
+        .summary-trend {
+            font-size: 12px;
+            margin-top: 4px;
+        }
+        
+        /* Gradient Text */
+        .gradient-text {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        /* Glow Effect */
+        @keyframes glow {
+            0%, 100% {
+                box-shadow: 0 0 5px rgba(0, 102, 255, 0.5);
+            }
+            50% {
+                box-shadow: 0 0 20px rgba(0, 102, 255, 0.8);
+            }
+        }
+        
+        .glow {
+            animation: glow 2s ease-in-out infinite;
         }
     </style>
 </head>
 <body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">
+                <div class="logo-icon">📈</div>
+                <span>ICSFP</span>
+            </div>
+            <div class="nav-links">
+                <a href="#" class="nav-link active">预测</a>
+                <a href="#" class="nav-link">市场</a>
+                <a href="#" class="nav-link">分析</a>
+                <a href="/health" class="nav-link">状态</a>
+            </div>
+        </div>
+    </nav>
+    
     <div class="container">
-        <!-- 头部 -->
-        <div class="header">
-            <h1>🔮 ICSFP</h1>
-            <p>Intelligent Causal Stock Forecasting Platform</p>
-            <p style="font-size: 0.9em; color: #999; margin-top: 10px;">智能因果股票预测平台</p>
+        <!-- Page Header -->
+        <div class="page-header">
+            <h1 class="page-title">智能因果股票预测</h1>
+            <p class="page-subtitle">基于深度学习和因果图的股票走势预测平台</p>
         </div>
         
-        <!-- 主要内容 -->
-        <div class="main-content">
-            <!-- 单股票预测 -->
-            <div class="card">
-                <h2>📈 单股票预测</h2>
-                <form id="singlePredictForm">
-                    <div class="form-group">
-                        <label for="stockSymbol">股票代码</label>
-                        <select id="stockSymbol" required>
-                            <option value="">选择股票...</option>
-                            <option value="AAPL">AAPL - Apple</option>
-                            <option value="GOOG">GOOG - Google</option>
-                            <option value="MSFT">MSFT - Microsoft</option>
-                            <option value="JPM">JPM - JPMorgan</option>
-                            <option value="JNJ">JNJ - Johnson & Johnson</option>
-                            <option value="XOM">XOM - Exxon Mobil</option>
-                        </select>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="startDate">开始日期</label>
-                        <input type="date" id="startDate" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="endDate">结束日期</label>
-                        <input type="date" id="endDate" required>
-                    </div>
-                    
-                    <div class="form-group checkbox-group">
-                        <input type="checkbox" id="useCausal" checked>
-                        <label for="useCausal" style="margin: 0;">使用因果图增强</label>
-                    </div>
-                    
-                    <button type="submit" class="btn">🚀 开始预测</button>
-                </form>
+        <!-- Stats Bar -->
+        <div class="stats-bar" id="statsBar">
+            <div class="stat-card">
+                <div class="stat-label">系统状态</div>
+                <div class="stat-value">
+                    <span class="stat-icon">⚡</span>
+                    <span id="systemStatus">加载中...</span>
+                </div>
             </div>
-            
-            <!-- 系统信息 -->
-            <div class="card">
-                <h2>ℹ️ 系统信息</h2>
-                <div id="systemInfo" class="info-grid">
-                    <div class="loading show">
-                        <div class="spinner"></div>
-                        <p>加载中...</p>
-                    </div>
+            <div class="stat-card">
+                <div class="stat-label">计算设备</div>
+                <div class="stat-value">
+                    <span class="stat-icon">🖥️</span>
+                    <span id="deviceInfo">-</span>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">可用股票</div>
+                <div class="stat-value">
+                    <span class="stat-icon">📊</span>
+                    <span id="stockCount">-</span>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">因果图</div>
+                <div class="stat-value">
+                    <span class="stat-icon">🔗</span>
+                    <span id="causalStatus">-</span>
                 </div>
             </div>
         </div>
         
-        <!-- 预测结果 -->
-        <div class="card result-card" id="resultCard">
-            <h2>📊 预测结果</h2>
-            <div class="loading" id="loadingSpinner">
-                <div class="spinner"></div>
-                <p>正在预测中...</p>
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Prediction Form -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">
+                        <span>🎯</span>
+                        <span>预测配置</span>
+                    </h2>
+                </div>
+                <div class="card-body">
+                    <form id="predictionForm">
+                        <div class="form-group">
+                            <label class="form-label">股票代码</label>
+                            <select id="stockSymbol" class="form-select" required>
+                                <option value="">选择股票...</option>
+                                <option value="AAPL">AAPL - Apple Inc.</option>
+                                <option value="GOOG">GOOG - Alphabet Inc.</option>
+                                <option value="MSFT">MSFT - Microsoft Corp.</option>
+                                <option value="JPM">JPM - JPMorgan Chase</option>
+                                <option value="JNJ">JNJ - Johnson & Johnson</option>
+                                <option value="XOM">XOM - Exxon Mobil</option>
+                                <option value="AMZN">AMZN - Amazon.com</option>
+                                <option value="TSLA">TSLA - Tesla Inc.</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">开始日期</label>
+                            <input type="date" id="startDate" class="form-input" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">结束日期</label>
+                            <input type="date" id="endDate" class="form-input" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="checkbox-group">
+                                <input type="checkbox" id="useCausal" checked>
+                                <span class="checkbox-label">启用因果图增强</span>
+                            </label>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary btn-block">
+                            <span>🚀</span>
+                            <span>开始预测</span>
+                        </button>
+                    </form>
+                </div>
             </div>
-            <div id="predictionResults"></div>
+            
+            <!-- Results Panel -->
+            <div class="card result-card" id="resultCard">
+                <div class="card-header">
+                    <h2 class="card-title">
+                        <span>📊</span>
+                        <span>预测结果</span>
+                    </h2>
+                </div>
+                <div class="card-body">
+                    <div class="loading" id="loadingSpinner">
+                        <div class="spinner"></div>
+                        <p class="loading-text">正在分析市场数据...</p>
+                    </div>
+                    
+                    <!-- Summary Cards -->
+                    <div id="summarySection" style="display: none;">
+                        <div class="summary-grid" id="summaryCards"></div>
+                    </div>
+                    
+                    <!-- Chart -->
+                    <div id="chartSection" style="display: none;">
+                        <div class="chart-container">
+                            <div class="chart-header">
+                                <div class="chart-title">预测趋势图</div>
+                                <div class="chart-legend">
+                                    <div class="legend-item">
+                                        <div class="legend-color" style="background: var(--secondary-color);"></div>
+                                        <span style="color: var(--text-secondary);">上涨概率</span>
+                                    </div>
+                                    <div class="legend-item">
+                                        <div class="legend-color" style="background: var(--danger-color);"></div>
+                                        <span style="color: var(--text-secondary);">下跌概率</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <canvas id="predictionChart"></canvas>
+                        </div>
+                    </div>
+                    
+                    <!-- Prediction List -->
+                    <div id="predictionResults"></div>
+                </div>
+            </div>
         </div>
     </div>
     
     <script>
         // API基础URL
         const API_BASE = 'http://localhost:5000/api/v1';
+        
+        // Chart.js 实例
+        let predictionChart = null;
         
         // 初始化日期
         const today = new Date();
@@ -334,38 +999,177 @@
                 const response = await fetch(`${API_BASE}/model/info`);
                 const data = await response.json();
                 
-                const infoHtml = `
-                    <div class="info-item">
-                        <div class="info-label">平台状态</div>
-                        <div class="info-value">✅ 运行中</div>
-                    </div>
-                    <div class="info-item">
-                        <div class="info-label">设备</div>
-                        <div class="info-value">${data.device || 'CPU'}</div>
-                    </div>
-                    <div class="info-item">
-                        <div class="info-label">可用股票</div>
-                        <div class="info-value">${data.total_stocks || '?'}</div>
-                    </div>
-                    <div class="info-item">
-                        <div class="info-label">因果图</div>
-                        <div class="info-value">${data.causal_graph_available ? '✓' : '✗'}</div>
-                    </div>
-                `;
+                // 更新状态栏（带动画）
+                animateValue('systemStatus', '运行中');
+                animateValue('deviceInfo', data.device || 'CPU');
+                animateValue('stockCount', data.total_stocks || '0');
+                animateValue('causalStatus', data.causal_graph_available ? '已加载' : '未加载');
                 
-                document.getElementById('systemInfo').innerHTML = infoHtml;
             } catch (error) {
                 console.error('加载系统信息失败:', error);
-                document.getElementById('systemInfo').innerHTML = `
-                    <div class="info-item" style="grid-column: 1 / -1;">
-                        <div class="info-label">❌ 无法连接到API服务器</div>
-                    </div>
-                `;
+                document.getElementById('systemStatus').textContent = '离线';
+                document.getElementById('deviceInfo').textContent = '-';
+                document.getElementById('stockCount').textContent = '-';
+                document.getElementById('causalStatus').textContent = '-';
             }
         }
         
-        // 单股票预测
-        document.getElementById('singlePredictForm').addEventListener('submit', async (e) => {
+        // 数字动画效果
+        function animateValue(elementId, endValue) {
+            const element = document.getElementById(elementId);
+            element.classList.add('loading');
+            setTimeout(() => {
+                element.textContent = endValue;
+                element.classList.remove('loading');
+                element.classList.add('scale-in');
+            }, 300);
+        }
+        
+        // 创建预测图表
+        function createPredictionChart(predictions) {
+            const ctx = document.getElementById('predictionChart');
+            
+            // 销毁旧图表
+            if (predictionChart) {
+                predictionChart.destroy();
+            }
+            
+            const dates = predictions.map(p => p.date);
+            const upProbs = predictions.map(p => p.probabilities.UP * 100);
+            const downProbs = predictions.map(p => p.probabilities.DOWN * 100);
+            const predictions_directions = predictions.map(p => p.predicted_direction === 'UP' ? 1 : 0);
+            
+            predictionChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: dates,
+                    datasets: [
+                        {
+                            label: '上涨概率',
+                            data: upProbs,
+                            borderColor: 'rgba(0, 196, 140, 1)',
+                            backgroundColor: 'rgba(0, 196, 140, 0.1)',
+                            borderWidth: 3,
+                            fill: true,
+                            tension: 0.4,
+                            pointRadius: 5,
+                            pointHoverRadius: 7,
+                            pointBackgroundColor: 'rgba(0, 196, 140, 1)',
+                            pointBorderColor: '#131722',
+                            pointBorderWidth: 2,
+                        },
+                        {
+                            label: '下跌概率',
+                            data: downProbs,
+                            borderColor: 'rgba(255, 87, 87, 1)',
+                            backgroundColor: 'rgba(255, 87, 87, 0.1)',
+                            borderWidth: 3,
+                            fill: true,
+                            tension: 0.4,
+                            pointRadius: 5,
+                            pointHoverRadius: 7,
+                            pointBackgroundColor: 'rgba(255, 87, 87, 1)',
+                            pointBorderColor: '#131722',
+                            pointBorderWidth: 2,
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                        mode: 'index',
+                        intersect: false,
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            backgroundColor: '#1E222D',
+                            titleColor: '#D1D4DC',
+                            bodyColor: '#D1D4DC',
+                            borderColor: '#2A2E39',
+                            borderWidth: 1,
+                            padding: 12,
+                            displayColors: true,
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': ' + context.parsed.y.toFixed(1) + '%';
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100,
+                            grid: {
+                                color: '#2A2E39',
+                                drawBorder: false
+                            },
+                            ticks: {
+                                color: '#787B86',
+                                callback: function(value) {
+                                    return value + '%';
+                                }
+                            }
+                        },
+                        x: {
+                            grid: {
+                                color: '#2A2E39',
+                                drawBorder: false
+                            },
+                            ticks: {
+                                color: '#787B86',
+                                maxRotation: 45,
+                                minRotation: 45
+                            }
+                        }
+                    },
+                    animation: {
+                        duration: 1500,
+                        easing: 'easeInOutQuart'
+                    }
+                }
+            });
+        }
+        
+        // 创建汇总卡片
+        function createSummaryCards(predictions) {
+            const totalDays = predictions.length;
+            const upDays = predictions.filter(p => p.predicted_direction === 'UP').length;
+            const downDays = totalDays - upDays;
+            const avgUpProb = predictions.reduce((sum, p) => sum + p.probabilities.UP, 0) / totalDays;
+            const avgDownProb = predictions.reduce((sum, p) => sum + p.probabilities.DOWN, 0) / totalDays;
+            
+            const summaryHtml = `
+                <div class="summary-card scale-in" style="animation-delay: 0s">
+                    <div class="summary-label">预测天数</div>
+                    <div class="summary-value">${totalDays}</div>
+                </div>
+                <div class="summary-card scale-in" style="animation-delay: 0.1s">
+                    <div class="summary-label">预测上涨</div>
+                    <div class="summary-value trend-up">${upDays} 天</div>
+                    <div class="summary-trend trend-up">▲ ${(upDays/totalDays*100).toFixed(0)}%</div>
+                </div>
+                <div class="summary-card scale-in" style="animation-delay: 0.2s">
+                    <div class="summary-label">预测下跌</div>
+                    <div class="summary-value trend-down">${downDays} 天</div>
+                    <div class="summary-trend trend-down">▼ ${(downDays/totalDays*100).toFixed(0)}%</div>
+                </div>
+                <div class="summary-card scale-in" style="animation-delay: 0.3s">
+                    <div class="summary-label">平均信心度</div>
+                    <div class="summary-value gradient-text">${Math.max(avgUpProb, avgDownProb).toFixed(1)}%</div>
+                </div>
+            `;
+            
+            document.getElementById('summaryCards').innerHTML = summaryHtml;
+            document.getElementById('summarySection').style.display = 'block';
+        }
+        
+        // 预测表单提交
+        document.getElementById('predictionForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             
             const stock = document.getElementById('stockSymbol').value;
@@ -373,14 +1177,18 @@
             const endDate = document.getElementById('endDate').value;
             const useCausal = document.getElementById('useCausal').checked;
             
-            // 显示加载中
+            // 显示加载状态
             const resultCard = document.getElementById('resultCard');
             const loadingSpinner = document.getElementById('loadingSpinner');
             const resultsDiv = document.getElementById('predictionResults');
+            const summarySection = document.getElementById('summarySection');
+            const chartSection = document.getElementById('chartSection');
             
-            resultCard.classList.add('show');
+            resultCard.classList.add('show', 'slide-in-right');
             loadingSpinner.classList.add('show');
             resultsDiv.innerHTML = '';
+            summarySection.style.display = 'none';
+            chartSection.style.display = 'none';
             
             try {
                 const response = await fetch(`${API_BASE}/predict/single`, {
@@ -397,92 +1205,172 @@
                 });
                 
                 if (!response.ok) {
-                    throw new Error('预测失败');
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
                 }
                 
                 const result = await response.json();
-                console.log('API响应:', result);
                 
-                // API返回格式: {status: 'success', data: {...}}
+                // 隐藏加载状态
+                loadingSpinner.classList.remove('show');
+                
+                // 验证数据
                 if (!result || result.status !== 'success' || !result.data) {
                     throw new Error('服务器返回的数据格式不正确');
                 }
                 
                 const data = result.data;
                 
-                // 隐藏加载中
-                loadingSpinner.classList.remove('show');
-                
-                // 检查数据完整性
-                if (!data.predictions || !Array.isArray(data.predictions)) {
-                    throw new Error('预测数据格式不正确');
-                }
-                
-                if (data.predictions.length === 0) {
+                if (!data.predictions || !Array.isArray(data.predictions) || data.predictions.length === 0) {
                     resultsDiv.innerHTML = `
-                        <div style="text-align: center; color: #ff9800; padding: 20px;">
-                            <h3>⚠️ 无预测数据</h3>
-                            <p>该日期范围内没有可用的预测数据</p>
+                        <div class="empty-state fade-in">
+                            <div class="empty-icon">📭</div>
+                            <div class="empty-title">无预测数据</div>
+                            <div class="empty-description">该日期范围内没有可用的预测数据</div>
                         </div>
                     `;
                     return;
                 }
                 
-                // 显示结果
-                let html = `
-                    <div style="text-align: center; margin-bottom: 20px;">
-                        <h3 style="color: #667eea;">股票代码: ${data.stock_symbol || '未知'}</h3>
-                        <p style="color: #666;">
-                            模型状态: ${data.model_status === 'loaded' ? '✅ 已加载' : '⚠️ 示例模式'}
-                            ${useCausal ? ' | ✅ 启用因果图' : ''}
-                        </p>
-                    </div>
-                `;
+                // 创建汇总卡片
+                createSummaryCards(data.predictions);
                 
-                data.predictions.forEach(pred => {
-                    const dirClass = pred.predicted_direction === 'UP' ? 'direction-up' : 'direction-down';
-                    const upProb = (pred.probabilities.UP * 100).toFixed(1);
-                    const downProb = (pred.probabilities.DOWN * 100).toFixed(1);
-                    
-                    html += `
-                        <div class="prediction-item">
-                            <div>
-                                <div class="prediction-date">${pred.date}</div>
-                                <div class="confidence">
-                                    📈 ${upProb}% | 📉 ${downProb}%
-                                </div>
-                            </div>
-                            <div>
-                                <span class="prediction-direction ${dirClass}">
-                                    ${pred.predicted_direction === 'UP' ? '↗ 上涨' : '↘ 下跌'}
-                                </span>
-                            </div>
-                        </div>
-                    `;
-                });
+                // 创建图表
+                chartSection.style.display = 'block';
+                setTimeout(() => {
+                    createPredictionChart(data.predictions);
+                }, 100);
                 
-                resultsDiv.innerHTML = html;
+                // 渲染预测结果
+                renderPredictionResults(data, useCausal);
                 
             } catch (error) {
                 console.error('预测错误:', error);
                 loadingSpinner.classList.remove('show');
                 resultsDiv.innerHTML = `
-                    <div style="text-align: center; color: #f44336; padding: 20px;">
-                        <h3>❌ 预测失败</h3>
-                        <p>${error.message}</p>
-                        <p style="font-size: 0.9em; color: #999; margin-top: 10px;">
+                    <div class="error-state fade-in">
+                        <div class="error-icon">❌</div>
+                        <div class="error-title">预测失败</div>
+                        <div class="error-message">${error.message}</div>
+                        <div class="error-details">
                             请检查：<br>
-                            1. API服务器是否正常运行<br>
-                            2. 网络连接是否正常<br>
-                            3. 查看浏览器控制台获取详细信息
-                        </p>
+                            • API 服务器是否正常运行<br>
+                            • 网络连接是否正常<br>
+                            • 查看浏览器控制台获取详细信息
+                        </div>
                     </div>
                 `;
             }
         });
         
-        // 页面加载时获取系统信息
-        loadSystemInfo();
+        // 渲染预测结果
+        function renderPredictionResults(data, useCausal) {
+            const resultsDiv = document.getElementById('predictionResults');
+            
+            // 头部信息
+            let html = `
+                <div class="prediction-header fade-in">
+                    <div class="prediction-stock gradient-text">${data.stock_symbol || '未知'}</div>
+                    <div class="prediction-meta">
+                        <span>📅 ${data.predictions.length} 个交易日</span>
+                        <span>•</span>
+                        <span>${data.model_status === 'loaded' ? '✅ 模型已加载' : '⚠️ 示例模式'}</span>
+                        ${useCausal ? '<span>•</span><span>🔗 因果增强</span>' : ''}
+                    </div>
+                </div>
+                <div class="prediction-list">
+            `;
+            
+            // 预测列表（带交错动画）
+            data.predictions.forEach((pred, index) => {
+                const isUp = pred.predicted_direction === 'UP';
+                const upProb = (pred.probabilities.UP * 100).toFixed(1);
+                const downProb = (pred.probabilities.DOWN * 100).toFixed(1);
+                const badgeClass = isUp ? 'badge-up' : 'badge-down';
+                const directionText = isUp ? '↗ 上涨' : '↘ 下跌';
+                const confidence = Math.max(upProb, downProb);
+                
+                html += `
+                    <div class="prediction-item fade-in" style="animation-delay: ${index * 0.05}s">
+                        <div class="prediction-date">${pred.date}</div>
+                        <div class="prediction-probabilities">
+                            <div class="prob-item">
+                                <span class="prob-label">上涨</span>
+                                <div class="prob-bar">
+                                    <div class="prob-fill up" style="width: ${upProb}%; animation-delay: ${index * 0.05}s"></div>
+                                </div>
+                                <span class="prob-value">${upProb}%</span>
+                            </div>
+                            <div class="prob-item">
+                                <span class="prob-label">下跌</span>
+                                <div class="prob-bar">
+                                    <div class="prob-fill down" style="width: ${downProb}%; animation-delay: ${index * 0.05}s"></div>
+                                </div>
+                                <span class="prob-value">${downProb}%</span>
+                            </div>
+                        </div>
+                        <div class="prediction-badge ${badgeClass}">
+                            ${directionText}
+                        </div>
+                    </div>
+                `;
+            });
+            
+            html += '</div>';
+            resultsDiv.innerHTML = html;
+            
+            // 滚动到结果
+            setTimeout(() => {
+                resultCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }, 200);
+        }
+        
+        // 页面加载时初始化
+        window.addEventListener('DOMContentLoaded', () => {
+            loadSystemInfo();
+            
+            // 添加页面加载动画
+            document.querySelectorAll('.stat-card').forEach((card, index) => {
+                card.style.animation = `slideInLeft 0.5s ease-out ${index * 0.1}s both`;
+            });
+            
+            document.querySelector('.card').style.animation = 'slideInLeft 0.5s ease-out 0.4s both';
+        });
+        
+        // 每30秒刷新系统信息
+        setInterval(loadSystemInfo, 30000);
+        
+        // 添加视觉反馈
+        document.querySelectorAll('.btn').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                const ripple = document.createElement('span');
+                ripple.style.position = 'absolute';
+                ripple.style.borderRadius = '50%';
+                ripple.style.background = 'rgba(255, 255, 255, 0.6)';
+                ripple.style.width = ripple.style.height = '100px';
+                ripple.style.left = e.clientX - this.offsetLeft - 50 + 'px';
+                ripple.style.top = e.clientY - this.offsetTop - 50 + 'px';
+                ripple.style.animation = 'ripple 0.6s ease-out';
+                ripple.style.pointerEvents = 'none';
+                this.appendChild(ripple);
+                setTimeout(() => ripple.remove(), 600);
+            });
+        });
+        
+        // 添加涟漪动画
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes ripple {
+                from {
+                    transform: scale(0);
+                    opacity: 1;
+                }
+                to {
+                    transform: scale(2);
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(style);
     </script>
 </body>
 </html>
