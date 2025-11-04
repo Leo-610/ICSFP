@@ -57,12 +57,15 @@
         
         /* Navbar */
         .navbar {
-            background: var(--surface-color);
-            border-bottom: 1px solid var(--border-color);
+            background: rgba(30, 34, 45, 0.8);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(209, 212, 220, 0.1);
             padding: 0 24px;
             position: sticky;
             top: 0;
             z-index: 100;
+            box-shadow: 0 4px 16px 0 rgba(0, 0, 0, 0.2);
         }
         
         .nav-container {
@@ -212,14 +215,17 @@
         }
         
         .stat-card {
-            background: var(--surface-color);
-            border: 1px solid var(--border-color);
+            background: rgba(30, 34, 45, 0.6);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(209, 212, 220, 0.1);
             border-radius: 16px;
             padding: 32px;
             text-align: center;
             transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             position: relative;
             overflow: hidden;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
         }
         
         .stat-card::before {
@@ -294,11 +300,14 @@
         }
         
         .info-card {
-            background: var(--surface-color);
-            border: 1px solid var(--border-color);
+            background: rgba(30, 34, 45, 0.6);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(209, 212, 220, 0.1);
             border-radius: 16px;
             padding: 32px;
             transition: all 0.4s;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
         }
         
         .info-card:hover {

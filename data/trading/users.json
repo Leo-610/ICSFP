@@ -237,5 +237,25 @@
     "total_trades": 7,
     "created_at": "2025-11-03T19:16:06.676948",
     "last_updated": "2025-11-03T19:20:06.720585"
+  },
+  "demo_user_kk35ljxrm": {
+    "user_id": "demo_user_kk35ljxrm",
+    "username": "演示用户",
+    "cash": 100000,
+    "initial_cash": 100000,
+    "portfolio": {},
+    "total_trades": 0,
+    "created_at": "2025-11-04T20:43:34.725249",
+    "last_updated": "2025-11-04T20:43:34.725249"
+  },
+  "demo_user_8h2yloilj": {
+    "user_id": "demo_user_8h2yloilj",
+    "username": "演示用户",
+    "cash": 100000,
+    "initial_cash": 100000,
+    "portfolio": {},
+    "total_trades": 0,
+    "created_at": "2025-11-04T20:43:37.175714",
+    "last_updated": "2025-11-04T20:43:37.175714"
   }
 }
