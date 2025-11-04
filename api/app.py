@@ -13,6 +13,7 @@ import os
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from api.routes import register_routes
+from api.trading_routes import register_trading_routes
 from api.middleware import error_handler, request_logger
 
 # 配置日志
@@ -49,6 +50,7 @@ def create_app(config_path='config.yml'):
     
     # 注册路由
     register_routes(app)
+    register_trading_routes(app)
     
     # 首页路由 - 提供Web界面
     @app.route('/')
@@ -62,6 +64,26 @@ def create_app(config_path='config.yml'):
         """返回关于页面"""
         return app.send_static_file('about.html')
     
+    # 交易页面路由
+    @app.route('/trading')
+    def trading():
+        """返回模拟交易页面"""
+        return app.send_static_file('trading.html')
+    
+    # 系统状态页面路由
+    @app.route('/health')
+    def health_page():
+        """返回系统状态监控页面"""
+        # 如果是浏览器访问，返回HTML页面
+        if request.headers.get('Accept') and 'text/html' in request.headers.get('Accept'):
+            return app.send_static_file('health.html')
+        # 如果是API请求，返回JSON
+        return jsonify({
+            'status': 'healthy',
+            'service': 'ICSFP API',
+            'version': '1.0.0'
+        })
+    
     # Favicon 路由
     @app.route('/favicon.ico')
     def favicon():
@@ -73,15 +95,6 @@ def create_app(config_path='config.yml'):
             return send_from_directory(os.path.join(app.root_path, 'static'),
                                      'favicon.ico', mimetype='image/vnd.microsoft.icon')
         return '', 204  # No Content
-    
-    # 健康检查端点
-    @app.route('/health', methods=['GET'])
-    def health_check():
-        return jsonify({
-            'status': 'healthy',
-            'service': 'ICSFP API',
-            'version': '1.0.0'
-        })
     
     logger.info('ICSFP API application created successfully')
     return app

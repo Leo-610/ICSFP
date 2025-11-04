@@ -57,21 +57,56 @@ class EnhancedStockPredictor:
                 self.model.to(self.device)
                 self.model.eval()
                 
-                # 尝试加载检查点
-                checkpoint_dirs = ['checkpoints', 'checkpoints/best']
-                for ckpt_dir in checkpoint_dirs:
-                    if os.path.exists(ckpt_dir):
-                        ckpt_files = [f for f in os.listdir(ckpt_dir) if f.endswith('.pth')]
-                        if ckpt_files:
-                            ckpt_path = os.path.join(ckpt_dir, ckpt_files[0])
-                            checkpoint = torch.load(ckpt_path, map_location=self.device)
-                            self.model.load_state_dict(checkpoint)
-                            logger.info(f"Loaded checkpoint: {ckpt_path}")
-                            self.model_loaded = True
-                            break
+                # 尝试加载检查点 - 支持子目录和不同的checkpoint格式
+                checkpoint_paths = []
+                
+                # 方法1: 在 checkpoints/ 根目录查找
+                if os.path.exists('checkpoints'):
+                    for item in os.listdir('checkpoints'):
+                        if item.endswith('.pth'):
+                            checkpoint_paths.append(os.path.join('checkpoints', item))
+                        # 方法2: 在子目录中查找 model.pth
+                        elif os.path.isdir(os.path.join('checkpoints', item)):
+                            model_file = os.path.join('checkpoints', item, 'model.pth')
+                            if os.path.exists(model_file):
+                                checkpoint_paths.append(model_file)
+                
+                # 方法3: 在 checkpoints/best 目录查找
+                if os.path.exists('checkpoints/best'):
+                    for item in os.listdir('checkpoints/best'):
+                        if item.endswith('.pth'):
+                            checkpoint_paths.append(os.path.join('checkpoints/best', item))
+                
+                # 尝试加载第一个找到的检查点
+                for ckpt_path in checkpoint_paths:
+                    try:
+                        logger.info(f"Attempting to load checkpoint: {ckpt_path}")
+                        checkpoint = torch.load(ckpt_path, map_location=self.device, weights_only=False)
+                        
+                        # 处理不同的checkpoint格式
+                        if isinstance(checkpoint, dict):
+                            if 'model_state_dict' in checkpoint:
+                                # 格式: {'epoch': ..., 'model_state_dict': ..., ...}
+                                state_dict = checkpoint['model_state_dict']
+                                logger.info(f"Loading from nested model_state_dict")
+                            else:
+                                # 格式: 直接是 state_dict
+                                state_dict = checkpoint
+                        else:
+                            state_dict = checkpoint
+                        
+                        # 加载state_dict
+                        self.model.load_state_dict(state_dict, strict=False)
+                        logger.info(f"✅ Successfully loaded checkpoint: {ckpt_path}")
+                        self.model_loaded = True
+                        break
+                        
+                    except Exception as e:
+                        logger.warning(f"Failed to load {ckpt_path}: {e}")
+                        continue
                 
                 if not self.model_loaded:
-                    logger.warning("No checkpoint found, using initialized model")
+                    logger.warning("No valid checkpoint found, using initialized model")
                     
             except Exception as e:
                 logger.warning(f"Could not load PyTorch model: {e}")
@@ -155,9 +190,15 @@ class EnhancedStockPredictor:
                 dates.append(current.strftime('%Y-%m-%d'))
             current += timedelta(days=1)
         
+        # 限制最多预测的天数（避免请求过大）
+        max_prediction_days = 60  # 约3个月的工作日
+        if len(dates) > max_prediction_days:
+            logger.warning(f"Date range too large ({len(dates)} days), limiting to {max_prediction_days} days")
+            dates = dates[:max_prediction_days]
+        
         # 为每个日期生成预测
         predictions = []
-        for date in dates[:10]:  # 限制最多10天
+        for date in dates:
             # 生成随机但合理的预测
             base_prob = 0.55 if use_causal else 0.52
             noise = np.random.normal(0, 0.15)

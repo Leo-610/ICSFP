@@ -1,0 +1,241 @@
+{
+  "test123": {
+    "user_id": "test123",
+    "username": "????",
+    "cash": 98185.39,
+    "initial_cash": 100000,
+    "portfolio": {
+      "AAPL": {
+        "shares": 10,
+        "avg_price": 181.28
+      }
+    },
+    "total_trades": 1,
+    "created_at": "2025-11-01T13:56:47.184617",
+    "last_updated": "2025-11-01T13:56:47.204886"
+  },
+  "demo2025": {
+    "user_id": "demo2025",
+    "username": "?????",
+    "cash": 97969.34,
+    "initial_cash": 100000,
+    "portfolio": {
+      "AAPL": {
+        "shares": 5,
+        "avg_price": 178.94
+      },
+      "MSFT": {
+        "shares": 3,
+        "avg_price": 377.98
+      }
+    },
+    "total_trades": 2,
+    "created_at": "2025-11-01T14:00:12.846367",
+    "last_updated": "2025-11-01T14:00:12.877754"
+  },
+  "demo_user_9o2mj669t": {
+    "user_id": "demo_user_9o2mj669t",
+    "username": "演示用户",
+    "cash": 100000,
+    "initial_cash": 100000,
+    "portfolio": {},
+    "total_trades": 0,
+    "created_at": "2025-11-01T14:00:13.425121",
+    "last_updated": "2025-11-01T14:00:13.425121"
+  },
+  "demo_user_d82wk1lll": {
+    "user_id": "demo_user_d82wk1lll",
+    "username": "演示用户",
+    "cash": 100000,
+    "initial_cash": 100000,
+    "portfolio": {},
+    "total_trades": 0,
+    "created_at": "2025-11-01T14:00:22.125608",
+    "last_updated": "2025-11-01T14:00:22.125608"
+  },
+  "demo_user_8fm6cdxac": {
+    "user_id": "demo_user_8fm6cdxac",
+    "username": "演示用户",
+    "cash": 100000,
+    "initial_cash": 100000,
+    "portfolio": {},
+    "total_trades": 0,
+    "created_at": "2025-11-01T14:00:24.467472",
+    "last_updated": "2025-11-01T14:00:24.467472"
+  },
+  "demo_user_w94r664h1": {
+    "user_id": "demo_user_w94r664h1",
+    "username": "演示用户",
+    "cash": 99465.38,
+    "initial_cash": 100000,
+    "portfolio": {
+      "AAPL": {
+        "shares": 3,
+        "avg_price": 178.03
+      }
+    },
+    "total_trades": 1,
+    "created_at": "2025-11-01T14:00:37.390484",
+    "last_updated": "2025-11-01T14:00:50.227405"
+  },
+  "demo_user_0axehr43g": {
+    "user_id": "demo_user_0axehr43g",
+    "username": "演示用户",
+    "cash": 99108.85,
+    "initial_cash": 100000,
+    "portfolio": {
+      "MDT": {
+        "shares": 10,
+        "avg_price": 88.51
+      }
+    },
+    "total_trades": 2,
+    "created_at": "2025-11-01T14:01:23.616884",
+    "last_updated": "2025-11-01T14:02:25.785340"
+  },
+  "demo_user_q39e35bva": {
+    "user_id": "demo_user_q39e35bva",
+    "username": "演示用户",
+    "cash": 100000,
+    "initial_cash": 100000,
+    "portfolio": {},
+    "total_trades": 0,
+    "created_at": "2025-11-01T14:02:38.553527",
+    "last_updated": "2025-11-01T14:02:38.553527"
+  },
+  "demo_user_tu5xmdj9k": {
+    "user_id": "demo_user_tu5xmdj9k",
+    "username": "演示用户",
+    "cash": 100000,
+    "initial_cash": 100000,
+    "portfolio": {},
+    "total_trades": 0,
+    "created_at": "2025-11-01T14:03:23.274625",
+    "last_updated": "2025-11-01T14:03:23.274625"
+  },
+  "demo_user_481u3635c": {
+    "user_id": "demo_user_481u3635c",
+    "username": "演示用户",
+    "cash": 100000,
+    "initial_cash": 100000,
+    "portfolio": {},
+    "total_trades": 0,
+    "created_at": "2025-11-01T14:20:05.114665",
+    "last_updated": "2025-11-01T14:20:05.114665"
+  },
+  "demo_user_mu8l0406y": {
+    "user_id": "demo_user_mu8l0406y",
+    "username": "演示用户",
+    "cash": 100000,
+    "initial_cash": 100000,
+    "portfolio": {},
+    "total_trades": 0,
+    "created_at": "2025-11-01T14:21:38.991605",
+    "last_updated": "2025-11-01T14:21:38.991605"
+  },
+  "demo_user_6ity8z2hk": {
+    "user_id": "demo_user_6ity8z2hk",
+    "username": "演示用户",
+    "cash": 100000,
+    "initial_cash": 100000,
+    "portfolio": {},
+    "total_trades": 0,
+    "created_at": "2025-11-01T14:25:52.099011",
+    "last_updated": "2025-11-01T14:25:52.099011"
+  },
+  "demo_user_v2p15gi8d": {
+    "user_id": "demo_user_v2p15gi8d",
+    "username": "演示用户",
+    "cash": 100000,
+    "initial_cash": 100000,
+    "portfolio": {},
+    "total_trades": 0,
+    "created_at": "2025-11-01T14:27:08.973063",
+    "last_updated": "2025-11-01T14:27:08.973063"
+  },
+  "demo_user_hbbredfwt": {
+    "user_id": "demo_user_hbbredfwt",
+    "username": "演示用户",
+    "cash": 100000,
+    "initial_cash": 100000,
+    "portfolio": {},
+    "total_trades": 0,
+    "created_at": "2025-11-01T14:27:12.780569",
+    "last_updated": "2025-11-01T14:27:12.780569"
+  },
+  "demo_user_ay1rfs1fu": {
+    "user_id": "demo_user_ay1rfs1fu",
+    "username": "演示用户",
+    "cash": 100000,
+    "initial_cash": 100000,
+    "portfolio": {},
+    "total_trades": 0,
+    "created_at": "2025-11-01T17:13:56.005778",
+    "last_updated": "2025-11-01T17:13:56.005778"
+  },
+  "demo_user_utlprsruy": {
+    "user_id": "demo_user_utlprsruy",
+    "username": "演示用户",
+    "cash": 99605.15,
+    "initial_cash": 100000,
+    "portfolio": {
+      "JPM": {
+        "shares": 2,
+        "avg_price": 197.23
+      }
+    },
+    "total_trades": 1,
+    "created_at": "2025-11-01T17:14:52.744996",
+    "last_updated": "2025-11-01T17:15:22.642099"
+  },
+  "demo_user_fup8usros": {
+    "user_id": "demo_user_fup8usros",
+    "username": "演示用户",
+    "cash": 100000,
+    "initial_cash": 100000,
+    "portfolio": {},
+    "total_trades": 0,
+    "created_at": "2025-11-01T17:15:56.640055",
+    "last_updated": "2025-11-01T17:15:56.640055"
+  },
+  "demo_user_h6p6jjmlx": {
+    "user_id": "demo_user_h6p6jjmlx",
+    "username": "演示用户",
+    "cash": 81430.45,
+    "initial_cash": 100000,
+    "portfolio": {
+      "ABBV": {
+        "shares": 100,
+        "avg_price": 185.51
+      }
+    },
+    "total_trades": 1,
+    "created_at": "2025-11-03T18:25:48.953795",
+    "last_updated": "2025-11-03T18:26:13.721015"
+  },
+  "demo_user_rwxi4t1y5": {
+    "user_id": "demo_user_rwxi4t1y5",
+    "username": "演示用户",
+    "cash": 100000,
+    "initial_cash": 100000,
+    "portfolio": {},
+    "total_trades": 0,
+    "created_at": "2025-11-03T18:30:46.015762",
+    "last_updated": "2025-11-03T18:30:46.015762"
+  },
+  "demo_user_jpwa2f3q1": {
+    "user_id": "demo_user_jpwa2f3q1",
+    "username": "演示用户",
+    "cash": 48366.6,
+    "initial_cash": 100000,
+    "portfolio": {
+      "AAPL": {
+        "shares": 300,
+        "avg_price": 175.82
+      }
+    },
+    "total_trades": 7,
+    "created_at": "2025-11-03T19:16:06.676948",
+    "last_updated": "2025-11-03T19:20:06.720585"
+  }
+}
