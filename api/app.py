@@ -14,6 +14,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from api.routes import register_routes
 from api.trading_routes import register_trading_routes
+from api.realtime_routes import register_realtime_routes
 from api.middleware import error_handler, request_logger
 
 # 配置日志
@@ -48,9 +49,42 @@ def create_app(config_path='config.yml'):
     app.before_request(request_logger)
     app.register_error_handler(Exception, error_handler)
     
+    # 添加安全响应头
+    @app.after_request
+    def add_security_headers(response):
+        """添加安全相关的HTTP头部"""
+        # 设置Content-Type字符集为UTF-8
+        if 'Content-Type' in response.headers:
+            content_type = response.headers['Content-Type']
+            if 'charset' not in content_type.lower():
+                if 'text/html' in content_type or 'application/json' in content_type:
+                    response.headers['Content-Type'] = f"{content_type}; charset=utf-8"
+        
+        # 使用CSP替代X-Frame-Options
+        response.headers['Content-Security-Policy'] = "frame-ancestors 'self'"
+        
+        # 设置Cache-Control（替代Expires）
+        if request.path.startswith('/static/'):
+            # 静态资源缓存1小时
+            response.headers['Cache-Control'] = 'public, max-age=3600'
+        else:
+            # 动态内容不缓存
+            response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+            response.headers['Pragma'] = 'no-cache'
+        
+        # 移除不必要的头部
+        response.headers.pop('X-XSS-Protection', None)
+        
+        # 其他安全头部
+        response.headers['X-Content-Type-Options'] = 'nosniff'
+        response.headers['Referrer-Policy'] = 'strict-origin-when-cross-origin'
+        
+        return response
+    
     # 注册路由
     register_routes(app)
     register_trading_routes(app)
+    register_realtime_routes(app, enable_websocket=True)
     
     # 首页路由 - 提供Web界面
     @app.route('/')
@@ -83,6 +117,24 @@ def create_app(config_path='config.yml'):
             'service': 'ICSFP API',
             'version': '1.0.0'
         })
+    
+    # 实时数据监控页面路由
+    @app.route('/realtime')
+    def realtime_page():
+        """返回实时数据监控页面"""
+        return app.send_static_file('realtime.html')
+    
+    # 可视化页面路由
+    @app.route('/visualization')
+    def visualization_page():
+        """返回高级可视化页面"""
+        return app.send_static_file('advanced_visualization.html')
+    
+    # 基础可视化页面路由
+    @app.route('/visualization/basic')
+    def basic_visualization_page():
+        """返回基础可视化页面"""
+        return app.send_static_file('visualization.html')
     
     # Favicon 路由
     @app.route('/favicon.ico')

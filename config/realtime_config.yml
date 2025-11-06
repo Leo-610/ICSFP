@@ -1,0 +1,97 @@
+# 实时数据模块配置
+# Real-time Data Configuration
+
+# 缓存设置
+cache:
+  dir: "cache/realtime"  # 缓存目录
+  ttl: 60  # 缓存过期时间（秒）
+  max_size: 1000  # 最大缓存条目数
+
+# 自动更新设置
+auto_update:
+  enabled: false  # 是否启用自动更新
+  interval: 300  # 更新间隔（秒，5分钟）
+
+# 数据源配置
+data_sources:
+  # Yahoo Finance (免费，无需API密钥)
+  yahoo_finance:
+    enabled: true
+    priority: 1  # 优先级（数字越小优先级越高）
+  
+  # Alpha Vantage (需要API密钥，有请求频率限制)
+  alpha_vantage:
+    enabled: false
+    api_key: ""  # 在 https://www.alphavantage.co/support/#api-key 获取
+    priority: 2
+    rate_limit: 5  # 每分钟最多5次请求
+  
+  # Tushare (中国A股数据，需要token)
+  tushare:
+    enabled: false
+    token: ""  # 在 https://tushare.pro 注册获取
+    priority: 3
+
+# 关注列表（用于自动更新和市场摘要）
+watch_list:
+  - AAPL
+  - GOOG
+  - MSFT
+  - AMZN
+  - FB
+  - TSLA
+  - NVDA
+  - JPM
+  - V
+  - WMT
+
+# WebSocket设置
+websocket:
+  enabled: true
+  namespace: "/realtime"
+  max_connections: 100  # 最大并发连接数
+  heartbeat_interval: 30  # 心跳间隔（秒）
+
+# 数据验证
+validation:
+  # 价格变动阈值（超过此阈值的数据视为异常）
+  max_price_change_percent: 50.0
+  # 成交量异常阈值
+  max_volume_multiplier: 100.0
+
+# 市场时间（用于判断是否在交易时间）
+market_hours:
+  # 美股
+  us:
+    timezone: "America/New_York"
+    trading_days: [0, 1, 2, 3, 4]  # 周一到周五
+    open_time: "09:30"
+    close_time: "16:00"
+  
+  # A股
+  cn:
+    timezone: "Asia/Shanghai"
+    trading_days: [0, 1, 2, 3, 4]
+    morning_open: "09:30"
+    morning_close: "11:30"
+    afternoon_open: "13:00"
+    afternoon_close: "15:00"
+
+# 数据预处理
+preprocessing:
+  # 缺失值处理
+  fill_method: "forward"  # forward, backward, interpolate
+  # 异常值处理
+  outlier_method: "clip"  # clip, remove, none
+
+# 日志设置
+logging:
+  level: "INFO"  # DEBUG, INFO, WARNING, ERROR
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  file: "log/realtime_data.log"
+
+# 性能监控
+monitoring:
+  enabled: true
+  metrics_interval: 60  # 指标收集间隔（秒）
+  alert_on_failure: true  # 数据获取失败时是否告警

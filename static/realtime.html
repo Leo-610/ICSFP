@@ -1,0 +1,886 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>实时数据监控 - ICSFP</title>
+    <script src="/static/particles-tech.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #0066FF;
+            --secondary-color: #00C48C;
+            --danger-color: #FF5757;
+            --warning-color: #FFB020;
+            --background-dark: #0B0E11;
+            --background-light: #131722;
+            --surface-color: #1E222D;
+            --text-primary: #D1D4DC;
+            --text-secondary: #787B86;
+            --border-color: #2A2E39;
+            --success-color: #4CAF50;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            background: var(--background-dark);
+            color: var(--text-primary);
+            padding: 20px;
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* 粒子背景画布 */
+        #particlesCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: auto;
+        }
+
+        /* 确保内容在粒子之上 */
+        .navbar,
+        .container {
+            position: relative;
+            z-index: 1;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 32px;
+        }
+
+        .status-bar {
+            background: var(--surface-color);
+            -webkit-backdrop-filter: blur(25px) saturate(180%);
+            backdrop-filter: blur(25px) saturate(180%);
+            border-radius: 12px;
+            padding: 15px 20px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .status-bar::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(0, 102, 255, 0.08), rgba(0, 196, 140, 0.08));
+            opacity: 0;
+            transition: opacity 0.4s ease;
+            pointer-events: none;
+        }
+
+        .status-bar:hover {
+            transform: translateY(-3px);
+            box-shadow: 
+                0 15px 35px rgba(0, 102, 255, 0.2),
+                0 0 20px rgba(0, 196, 140, 0.15),
+                inset 0 0 0 1px rgba(0, 102, 255, 0.4);
+            border-color: var(--primary-color);
+        }
+
+        .status-bar:hover::before {
+            opacity: 1;
+        }
+
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--text-primary);
+        }
+
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--danger-color);
+            animation: pulse 2s infinite;
+        }
+
+        .status-dot.connected {
+            background: var(--success-color);
+            box-shadow: 0 0 10px var(--success-color);
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            background: var(--surface-color);
+            -webkit-backdrop-filter: blur(25px) saturate(180%);
+            backdrop-filter: blur(25px) saturate(180%);
+            padding: 15px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .controls::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(0, 102, 255, 0.05), rgba(0, 196, 140, 0.05));
+            opacity: 0;
+            transition: opacity 0.4s ease;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .controls:hover {
+            transform: translateY(-3px);
+            box-shadow: 
+                0 12px 35px rgba(0, 102, 255, 0.2),
+                0 0 20px rgba(0, 196, 140, 0.15),
+                inset 0 0 0 1px rgba(0, 102, 255, 0.3);
+            border-color: var(--primary-color);
+        }
+
+        .controls:hover::before {
+            opacity: 1;
+        }
+
+        .controls > * {
+            position: relative;
+            z-index: 1;
+        }
+
+        input, button {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        input {
+            flex: 1;
+            background: var(--background-light);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(0, 102, 255, 0.1);
+        }
+
+        button {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 102, 255, 0.3);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .quick-select {
+            display: flex;
+            gap: 6px;
+        }
+
+        .btn-small {
+            padding: 6px 12px !important;
+            font-size: 12px !important;
+            background: rgba(255, 255, 255, 0.1) !important;
+            border: 1px solid var(--border-color);
+            white-space: nowrap;
+        }
+
+        .btn-small:hover {
+            background: linear-gradient(135deg, rgba(0, 102, 255, 0.3), rgba(0, 196, 140, 0.3)) !important;
+            border-color: var(--primary-color);
+        }
+
+        button:disabled {
+            background: var(--border-color);
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: var(--surface-color);
+            -webkit-backdrop-filter: blur(25px) saturate(180%);
+            backdrop-filter: blur(25px) saturate(180%);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            animation: slideInUp 0.5s ease-out;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(0, 102, 255, 0.1), rgba(0, 196, 140, 0.1));
+            opacity: 0;
+            transition: opacity 0.4s ease;
+            pointer-events: none;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 
+                0 20px 40px rgba(0, 102, 255, 0.25),
+                0 0 25px rgba(0, 196, 140, 0.2),
+                inset 0 0 0 1px rgba(0, 102, 255, 0.5);
+            border-color: var(--primary-color);
+        }
+
+        .stat-card:hover::before {
+            opacity: 1;
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: bold;
+            margin: 10px 0;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            opacity: 0.8;
+            color: var(--text-secondary);
+        }
+
+        .quotes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 15px;
+        }
+
+        .quote-card {
+            background: var(--surface-color);
+            -webkit-backdrop-filter: blur(25px) saturate(180%);
+            backdrop-filter: blur(25px) saturate(180%);
+            border-radius: 12px;
+            padding: 20px;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border: 1px solid var(--border-color);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            animation: fadeIn 0.5s ease-out;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .quote-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(0, 102, 255, 0.1), rgba(0, 196, 140, 0.1));
+            opacity: 0;
+            transition: opacity 0.4s ease;
+            pointer-events: none;
+        }
+
+        .quote-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 
+                0 20px 40px rgba(0, 102, 255, 0.25),
+                0 0 25px rgba(0, 196, 140, 0.2),
+                inset 0 0 0 1px rgba(0, 102, 255, 0.5);
+            border-color: var(--primary-color);
+        }
+
+        .quote-card:hover::before {
+            opacity: 1;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .quote-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .quote-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .quote-symbol {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .quote-change {
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+
+        .quote-change.up {
+            background: #4CAF50;
+        }
+
+        .quote-change.down {
+            background: #f44336;
+        }
+
+        .quote-price {
+            font-size: 36px;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        .quote-details {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .quote-detail {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .timestamp {
+            text-align: center;
+            margin-top: 10px;
+            font-size: 12px;
+            opacity: 0.7;
+        }
+
+        .error {
+            background: rgba(255, 68, 68, 0.2);
+            border: 1px solid #ff4444;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 10px 0;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .updating {
+            animation: pulse 1s infinite;
+        }
+
+        /* Navigation Bar */
+        .navbar {
+            background: var(--surface-color);
+            -webkit-backdrop-filter: blur(25px) saturate(180%);
+            backdrop-filter: blur(25px) saturate(180%);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 12px 20px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 20px rgba(0, 102, 255, 0.1);
+            position: relative;
+            z-index: 10;
+            animation: slideInUp 0.4s ease-out;
+        }
+
+        .navbar .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 700;
+            font-size: 20px;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .navbar .nav-links {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .navbar .nav-link {
+            color: var(--text-primary);
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            font-size: 14px;
+            font-weight: 500;
+            border: 1px solid transparent;
+        }
+
+        .navbar .nav-link:hover {
+            background: rgba(0, 102, 255, 0.1);
+            color: var(--primary-color);
+            border-color: var(--primary-color);
+            transform: translateY(-2px);
+        }
+
+        .navbar .nav-link.active {
+            background: linear-gradient(135deg, rgba(0, 102, 255, 0.2), rgba(0, 196, 140, 0.2));
+            color: var(--primary-color);
+            border-color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 粒子背景画布 -->
+    <canvas id="particlesCanvas"></canvas>
+
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="logo">
+            <span>📈</span>
+            <span>ICSFP</span>
+        </div>
+        <div class="nav-links">
+            <a href="/" class="nav-link">预测</a>
+            <a href="/trading" class="nav-link">💹 模拟交易</a>
+            <a href="/visualization" class="nav-link">📊 可视化</a>
+            <a href="/realtime" class="nav-link active">⚡ 实时监控</a>
+            <a href="/about" class="nav-link">关于</a>
+            <a href="/health" class="nav-link">状态</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h1 style="background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">📈 实时股票数据监控</h1>
+
+        <div class="status-bar">
+            <div class="status-item">
+                <div class="status-dot" id="connectionStatus"></div>
+                <span id="connectionText">未连接</span>
+            </div>
+            <div class="status-item">
+                <span>最后更新: <span id="lastUpdate">--</span></span>
+            </div>
+        </div>
+
+        <div class="controls">
+            <div style="flex: 1; display: flex; gap: 10px; align-items: center;">
+                <input type="text" id="symbolInput" placeholder="输入股票代码 (如: AAPL,GOOG,MSFT)" value="AAPL,GOOG,MSFT,AMZN,TSLA" style="flex: 1;">
+                <div class="quick-select">
+                    <button onclick="setQuickStocks('tech')" class="btn-small">科技股</button>
+                    <button onclick="setQuickStocks('faang')" class="btn-small">FAANG</button>
+                    <button onclick="setQuickStocks('china')" class="btn-small">中概股</button>
+                </div>
+            </div>
+            <button onclick="subscribe()">订阅</button>
+            <button onclick="unsubscribe()">取消订阅</button>
+            <button onclick="refreshData()">刷新</button>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-label">订阅股票</div>
+                <div class="stat-value" id="totalStocks">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">上涨</div>
+                <div class="stat-value" style="color: #4CAF50;" id="upCount">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">下跌</div>
+                <div class="stat-value" style="color: #f44336;" id="downCount">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">平均涨跌</div>
+                <div class="stat-value" id="avgChange">0.00%</div>
+            </div>
+        </div>
+
+        <div id="error" class="error" style="display: none;"></div>
+
+        <div class="quotes-grid" id="quotesGrid"></div>
+    </div>
+
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+    <script>
+        let socket = null;
+        let subscribedSymbols = [];
+        const quotes = {};
+
+        // 连接WebSocket
+        function connectWebSocket() {
+            socket = io('/realtime', {
+                transports: ['websocket', 'polling']
+            });
+
+            socket.on('connect', () => {
+                updateConnectionStatus(true);
+                console.log('WebSocket connected');
+            });
+
+            socket.on('disconnect', () => {
+                updateConnectionStatus(false);
+                console.log('WebSocket disconnected');
+            });
+
+            socket.on('connection_response', (data) => {
+                console.log('Connection response:', data);
+            });
+
+            socket.on('market_update', (data) => {
+                console.log('Market update:', data);
+                handleMarketUpdate(data);
+            });
+
+            socket.on('subscribe_response', (data) => {
+                console.log('Subscribe response:', data);
+                if (data.status === 'success') {
+                    subscribedSymbols = data.subscribed;
+                    updateStats();
+                }
+            });
+
+            socket.on('unsubscribe_response', (data) => {
+                console.log('Unsubscribe response:', data);
+            });
+
+            socket.on('error', (data) => {
+                console.error('Error:', data);
+                showError(data.message);
+            });
+        }
+
+        // 快捷选择股票组
+        function setQuickStocks(type) {
+            const stockGroups = {
+                'tech': 'AAPL,MSFT,GOOG,NVDA,AMD,INTC,TSLA',
+                'faang': 'META,AAPL,AMZN,NFLX,GOOG',
+                'china': 'BABA,JD,PDD,BIDU,NIO'
+            };
+            
+            const input = document.getElementById('symbolInput');
+            if (stockGroups[type]) {
+                input.value = stockGroups[type];
+                // 自动订阅
+                setTimeout(() => subscribe(), 100);
+            }
+        }
+
+        // 订阅股票
+        function subscribe() {
+            const input = document.getElementById('symbolInput').value.trim();
+            if (!input) {
+                showError('请输入股票代码');
+                return;
+            }
+
+            const symbols = input.split(',').map(s => s.trim()).filter(s => s);
+            
+            if (socket && socket.connected) {
+                socket.emit('subscribe', { symbols });
+            } else {
+                showError('WebSocket未连接');
+            }
+        }
+
+        // 取消订阅
+        function unsubscribe() {
+            if (socket && socket.connected && subscribedSymbols.length > 0) {
+                socket.emit('unsubscribe', { symbols: subscribedSymbols });
+                subscribedSymbols = [];
+                quotes = {};
+                updateDisplay();
+                updateStats();
+            }
+        }
+
+        // 刷新数据
+        function refreshData() {
+            if (subscribedSymbols.length > 0) {
+                fetchQuotes(subscribedSymbols);
+            }
+        }
+
+        // 通过HTTP API获取数据
+        function fetchQuotes(symbols) {
+            fetch('/api/v1/realtime/quotes', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ symbols })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    Object.assign(quotes, data.data);
+                    updateDisplay();
+                    updateStats();
+                } else {
+                    showError(data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Fetch error:', error);
+                showError('获取数据失败: ' + error.message);
+            });
+        }
+
+        // 处理市场更新
+        function handleMarketUpdate(data) {
+            if (data.type === 'initial') {
+                // 初始数据
+                Object.assign(quotes, data.data);
+            } else if (data.type === 'update') {
+                // 更新数据
+                if (data.symbol && data.data) {
+                    quotes[data.symbol] = data.data;
+                }
+            }
+            
+            updateDisplay();
+            updateStats();
+            updateLastUpdateTime();
+        }
+
+        // 更新显示
+        function updateDisplay() {
+            const grid = document.getElementById('quotesGrid');
+            grid.innerHTML = '';
+
+            Object.entries(quotes).forEach(([symbol, quote]) => {
+                if (quote.error) {
+                    return; // 跳过错误的数据
+                }
+
+                const card = createQuoteCard(symbol, quote);
+                grid.appendChild(card);
+            });
+        }
+
+        // 创建报价卡片
+        function createQuoteCard(symbol, quote) {
+            const card = document.createElement('div');
+            card.className = 'quote-card';
+            
+            const changePercent = quote.change_percent || 0;
+            const changeClass = changePercent > 0 ? 'up' : changePercent < 0 ? 'down' : '';
+            const changeSign = changePercent > 0 ? '▲' : changePercent < 0 ? '▼' : '';
+            
+            card.innerHTML = `
+                <div class="quote-header">
+                    <div class="quote-symbol">${symbol}</div>
+                    <div class="quote-change ${changeClass}">
+                        ${changeSign} ${Math.abs(changePercent).toFixed(2)}%
+                    </div>
+                </div>
+                <div class="quote-price">$${quote.price?.toFixed(2) || '--'}</div>
+                <div class="quote-details">
+                    <div class="quote-detail">
+                        <span>开盘:</span>
+                        <span>$${quote.open?.toFixed(2) || '--'}</span>
+                    </div>
+                    <div class="quote-detail">
+                        <span>最高:</span>
+                        <span>$${quote.high?.toFixed(2) || '--'}</span>
+                    </div>
+                    <div class="quote-detail">
+                        <span>最低:</span>
+                        <span>$${quote.low?.toFixed(2) || '--'}</span>
+                    </div>
+                    <div class="quote-detail">
+                        <span>成交量:</span>
+                        <span>${formatVolume(quote.volume)}</span>
+                    </div>
+                </div>
+                <div class="timestamp">${quote.source || ''}</div>
+            `;
+            
+            return card;
+        }
+
+        // 更新统计信息
+        function updateStats() {
+            const validQuotes = Object.values(quotes).filter(q => !q.error);
+            
+            document.getElementById('totalStocks').textContent = subscribedSymbols.length;
+            
+            const upCount = validQuotes.filter(q => (q.change_percent || 0) > 0).length;
+            const downCount = validQuotes.filter(q => (q.change_percent || 0) < 0).length;
+            
+            document.getElementById('upCount').textContent = upCount;
+            document.getElementById('downCount').textContent = downCount;
+            
+            const avgChange = validQuotes.length > 0
+                ? validQuotes.reduce((sum, q) => sum + (q.change_percent || 0), 0) / validQuotes.length
+                : 0;
+            
+            const avgElement = document.getElementById('avgChange');
+            avgElement.textContent = avgChange.toFixed(2) + '%';
+            avgElement.style.color = avgChange > 0 ? '#4CAF50' : avgChange < 0 ? '#f44336' : '#fff';
+        }
+
+        // 更新连接状态
+        function updateConnectionStatus(connected) {
+            const statusDot = document.getElementById('connectionStatus');
+            const statusText = document.getElementById('connectionText');
+            
+            if (connected) {
+                statusDot.classList.add('connected');
+                statusText.textContent = '已连接';
+            } else {
+                statusDot.classList.remove('connected');
+                statusText.textContent = '未连接';
+            }
+        }
+
+        // 更新最后更新时间
+        function updateLastUpdateTime() {
+            const now = new Date();
+            const timeStr = now.toLocaleTimeString('zh-CN');
+            document.getElementById('lastUpdate').textContent = timeStr;
+        }
+
+        // 显示错误
+        function showError(message) {
+            const errorDiv = document.getElementById('error');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+            
+            setTimeout(() => {
+                errorDiv.style.display = 'none';
+            }, 5000);
+        }
+
+        // 格式化成交量
+        function formatVolume(volume) {
+            if (!volume) return '--';
+            if (volume >= 1000000000) return (volume / 1000000000).toFixed(2) + 'B';
+            if (volume >= 1000000) return (volume / 1000000).toFixed(2) + 'M';
+            if (volume >= 1000) return (volume / 1000).toFixed(2) + 'K';
+            return volume.toString();
+        }
+
+        // 页面加载时连接
+        window.addEventListener('load', () => {
+            connectWebSocket();
+        });
+
+        // 页面卸载时断开连接
+        window.addEventListener('beforeunload', () => {
+            if (socket) {
+                socket.disconnect();
+            }
+        });
+    </script>
+
+    <!-- 粒子背景初始化 -->
+    <script>
+        window.addEventListener('DOMContentLoaded', () => {
+            const isMobile = /Android|webOS|iPhone|iPad|iPod/i.test(navigator.userAgent);
+            const particleCount = isMobile ? 40 : 100;
+            
+            const particlesBackground = new ParticlesBackground('particlesCanvas', {
+                particleCount: particleCount,
+                particleColor: 'rgba(0, 102, 255, 0.8)',
+                lineColor: 'rgba(0, 196, 140, 0.2)',
+                particleRadius: 2.5,
+                lineDistance: 150,
+                particleSpeed: 0.3,
+                mouseRadius: 150,
+                glowEffect: !isMobile
+            });
+        });
+    </script>
+</body>
+</html>

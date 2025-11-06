@@ -176,9 +176,9 @@ stocks:
 
 paths:
   data: 'data/'
-  tweet_retrieved: 'tweet/raw'
-  tweet_preprocessed: 'tweet/preprocessed'
-  price: 'price/preprocessed'
+  tweet_retrieved: 'cikm18/tweet/raw'
+  tweet_preprocessed: 'cikm18/tweet/preprocessed'
+  price: 'cikm18/price/preprocessed'
   res: 'res/'
   glove: 'glove.twitter.27B.50d.txt'
   vocab_tweet: 'vocab.txt'

@@ -257,5 +257,320 @@
     "total_trades": 0,
     "created_at": "2025-11-04T20:43:37.175714",
     "last_updated": "2025-11-04T20:43:37.175714"
+  },
+  "demo_user_6rgswtkdh": {
+    "user_id": "demo_user_6rgswtkdh",
+    "username": "演示用户",
+    "cash": 100000,
+    "initial_cash": 100000,
+    "portfolio": {},
+    "total_trades": 0,
+    "created_at": "2025-11-04T20:51:15.462505",
+    "last_updated": "2025-11-04T20:51:15.462505"
+  },
+  "demo_user_f9st6erau": {
+    "user_id": "demo_user_f9st6erau",
+    "username": "演示用户",
+    "cash": 100000,
+    "initial_cash": 100000,
+    "portfolio": {},
+    "total_trades": 0,
+    "created_at": "2025-11-04T20:57:59.862551",
+    "last_updated": "2025-11-04T20:57:59.862551"
+  },
+  "demo_user_i53oh9s3b": {
+    "user_id": "demo_user_i53oh9s3b",
+    "username": "演示用户",
+    "cash": 100000,
+    "initial_cash": 100000,
+    "portfolio": {},
+    "total_trades": 0,
+    "created_at": "2025-11-04T21:03:46.566342",
+    "last_updated": "2025-11-04T21:03:46.566342"
+  },
+  "demo_user_pie0rty5k": {
+    "user_id": "demo_user_pie0rty5k",
+    "username": "演示用户",
+    "cash": 100000,
+    "initial_cash": 100000,
+    "portfolio": {},
+    "total_trades": 0,
+    "created_at": "2025-11-04T21:04:05.742418",
+    "last_updated": "2025-11-04T21:04:05.742418"
+  },
+  "demo_user_lx1fvfxn6": {
+    "user_id": "demo_user_lx1fvfxn6",
+    "username": "演示用户",
+    "cash": 100000,
+    "initial_cash": 100000,
+    "portfolio": {},
+    "total_trades": 0,
+    "created_at": "2025-11-04T21:04:34.743551",
+    "last_updated": "2025-11-04T21:04:34.743551"
+  },
+  "demo_user_9oui2al8u": {
+    "user_id": "demo_user_9oui2al8u",
+    "username": "演示用户",
+    "cash": 100000,
+    "initial_cash": 100000,
+    "portfolio": {},
+    "total_trades": 0,
+    "created_at": "2025-11-04T21:05:08.519629",
+    "last_updated": "2025-11-04T21:05:08.519629"
+  },
+  "demo_user_a8jicahxg": {
+    "user_id": "demo_user_a8jicahxg",
+    "username": "演示用户",
+    "cash": 100000,
+    "initial_cash": 100000,
+    "portfolio": {},
+    "total_trades": 0,
+    "created_at": "2025-11-04T21:06:11.971998",
+    "last_updated": "2025-11-04T21:06:11.971998"
+  },
+  "demo_user_xzwzfzuu4": {
+    "user_id": "demo_user_xzwzfzuu4",
+    "username": "演示用户",
+    "cash": 100000,
+    "initial_cash": 100000,
+    "portfolio": {},
+    "total_trades": 0,
+    "created_at": "2025-11-04T21:19:01.865278",
+    "last_updated": "2025-11-04T21:19:01.865278"
+  },
+  "demo_user_7dcr8x1lm": {
+    "user_id": "demo_user_7dcr8x1lm",
+    "username": "演示用户",
+    "cash": 100000,
+    "initial_cash": 100000,
+    "portfolio": {},
+    "total_trades": 0,
+    "created_at": "2025-11-04T21:19:04.673376",
+    "last_updated": "2025-11-04T21:19:04.673376"
+  },
+  "demo_user_qqyxfib76": {
+    "user_id": "demo_user_qqyxfib76",
+    "username": "演示用户",
+    "cash": 100000,
+    "initial_cash": 100000,
+    "portfolio": {},
+    "total_trades": 0,
+    "created_at": "2025-11-04T21:19:27.257071",
+    "last_updated": "2025-11-04T21:19:27.257071"
+  },
+  "demo_user_awexcus9j": {
+    "user_id": "demo_user_awexcus9j",
+    "username": "演示用户",
+    "cash": 100000,
+    "initial_cash": 100000,
+    "portfolio": {},
+    "total_trades": 0,
+    "created_at": "2025-11-04T21:20:08.456433",
+    "last_updated": "2025-11-04T21:20:08.456433"
+  },
+  "demo_user_jn1j6ls37": {
+    "user_id": "demo_user_jn1j6ls37",
+    "username": "演示用户",
+    "cash": 100000,
+    "initial_cash": 100000,
+    "portfolio": {},
+    "total_trades": 0,
+    "created_at": "2025-11-04T21:20:28.892863",
+    "last_updated": "2025-11-04T21:20:28.892863"
+  },
+  "demo_user_pedviqlge": {
+    "user_id": "demo_user_pedviqlge",
+    "username": "演示用户",
+    "cash": 100000,
+    "initial_cash": 100000,
+    "portfolio": {},
+    "total_trades": 0,
+    "created_at": "2025-11-04T21:20:31.459096",
+    "last_updated": "2025-11-04T21:20:31.459096"
+  },
+  "demo_user_3znre9fhm": {
+    "user_id": "demo_user_3znre9fhm",
+    "username": "演示用户",
+    "cash": 100000,
+    "initial_cash": 100000,
+    "portfolio": {},
+    "total_trades": 0,
+    "created_at": "2025-11-04T21:27:46.848913",
+    "last_updated": "2025-11-04T21:27:46.848913"
+  },
+  "demo_user_acbcom4fg": {
+    "user_id": "demo_user_acbcom4fg",
+    "username": "演示用户",
+    "cash": 100000,
+    "initial_cash": 100000,
+    "portfolio": {},
+    "total_trades": 0,
+    "created_at": "2025-11-04T21:33:20.194045",
+    "last_updated": "2025-11-04T21:33:20.194045"
+  },
+  "demo_user_yg7miapnn": {
+    "user_id": "demo_user_yg7miapnn",
+    "username": "演示用户",
+    "cash": 100000,
+    "initial_cash": 100000,
+    "portfolio": {},
+    "total_trades": 0,
+    "created_at": "2025-11-04T21:33:21.117669",
+    "last_updated": "2025-11-04T21:33:21.117669"
+  },
+  "demo_user_do3o5tio3": {
+    "user_id": "demo_user_do3o5tio3",
+    "username": "演示用户",
+    "cash": 100000,
+    "initial_cash": 100000,
+    "portfolio": {},
+    "total_trades": 0,
+    "created_at": "2025-11-04T21:34:22.373175",
+    "last_updated": "2025-11-04T21:34:22.373175"
+  },
+  "demo_user_t1q745xnj": {
+    "user_id": "demo_user_t1q745xnj",
+    "username": "演示用户",
+    "cash": 100000,
+    "initial_cash": 100000,
+    "portfolio": {},
+    "total_trades": 0,
+    "created_at": "2025-11-04T21:37:00.334221",
+    "last_updated": "2025-11-04T21:37:00.334221"
+  },
+  "demo_user_010mj4ulk": {
+    "user_id": "demo_user_010mj4ulk",
+    "username": "演示用户",
+    "cash": 82379.4,
+    "initial_cash": 100000,
+    "portfolio": {
+      "AAPL": {
+        "shares": 100,
+        "avg_price": 176.03
+      }
+    },
+    "total_trades": 1,
+    "created_at": "2025-11-04T21:59:26.995225",
+    "last_updated": "2025-11-04T21:59:38.966382"
+  },
+  "demo_user_ch1480s8o": {
+    "user_id": "demo_user_ch1480s8o",
+    "username": "演示用户",
+    "cash": 100000,
+    "initial_cash": 100000,
+    "portfolio": {},
+    "total_trades": 0,
+    "created_at": "2025-11-05T17:39:47.457804",
+    "last_updated": "2025-11-05T17:39:47.457804"
+  },
+  "demo_user_22dhqnzso": {
+    "user_id": "demo_user_22dhqnzso",
+    "username": "演示用户",
+    "cash": 100000,
+    "initial_cash": 100000,
+    "portfolio": {},
+    "total_trades": 0,
+    "created_at": "2025-11-05T17:47:35.765975",
+    "last_updated": "2025-11-05T17:47:35.765975"
+  },
+  "demo_user_rp0j0ewkh": {
+    "user_id": "demo_user_rp0j0ewkh",
+    "username": "演示用户",
+    "cash": 100000,
+    "initial_cash": 100000,
+    "portfolio": {},
+    "total_trades": 0,
+    "created_at": "2025-11-05T17:48:51.015795",
+    "last_updated": "2025-11-05T17:48:51.015795"
+  },
+  "demo_user_32y4hr8cb": {
+    "user_id": "demo_user_32y4hr8cb",
+    "username": "演示用户",
+    "cash": 100000,
+    "initial_cash": 100000,
+    "portfolio": {},
+    "total_trades": 0,
+    "created_at": "2025-11-05T18:06:36.372228",
+    "last_updated": "2025-11-05T18:06:36.372228"
+  },
+  "demo_user_9uy3ubzdd": {
+    "user_id": "demo_user_9uy3ubzdd",
+    "username": "演示用户",
+    "cash": 100000,
+    "initial_cash": 100000,
+    "portfolio": {},
+    "total_trades": 0,
+    "created_at": "2025-11-05T18:06:53.323815",
+    "last_updated": "2025-11-05T18:06:53.323815"
+  },
+  "demo_user_m4sje2u7q": {
+    "user_id": "demo_user_m4sje2u7q",
+    "username": "演示用户",
+    "cash": 100000,
+    "initial_cash": 100000,
+    "portfolio": {},
+    "total_trades": 0,
+    "created_at": "2025-11-05T18:57:05.721298",
+    "last_updated": "2025-11-05T18:57:05.721298"
+  },
+  "demo_user_7qf4xt04j": {
+    "user_id": "demo_user_7qf4xt04j",
+    "username": "演示用户",
+    "cash": 100000,
+    "initial_cash": 100000,
+    "portfolio": {},
+    "total_trades": 0,
+    "created_at": "2025-11-05T19:01:13.787751",
+    "last_updated": "2025-11-05T19:01:13.787751"
+  },
+  "demo_user_j85idswg8": {
+    "user_id": "demo_user_j85idswg8",
+    "username": "演示用户",
+    "cash": 100000,
+    "initial_cash": 100000,
+    "portfolio": {},
+    "total_trades": 0,
+    "created_at": "2025-11-05T19:01:42.359174",
+    "last_updated": "2025-11-05T19:01:42.359174"
+  },
+  "demo_user_knagqgoxe": {
+    "user_id": "demo_user_knagqgoxe",
+    "username": "演示用户",
+    "cash": 100000,
+    "initial_cash": 100000,
+    "portfolio": {},
+    "total_trades": 0,
+    "created_at": "2025-11-05T19:57:22.094551",
+    "last_updated": "2025-11-05T19:57:22.094551"
+  },
+  "demo_user_7ac0r02kd": {
+    "user_id": "demo_user_7ac0r02kd",
+    "username": "演示用户",
+    "cash": 100000,
+    "initial_cash": 100000,
+    "portfolio": {},
+    "total_trades": 0,
+    "created_at": "2025-11-05T19:57:33.149974",
+    "last_updated": "2025-11-05T19:57:33.149974"
+  },
+  "demo_user_ydd3bc3lj": {
+    "user_id": "demo_user_ydd3bc3lj",
+    "username": "演示用户",
+    "cash": 100000,
+    "initial_cash": 100000,
+    "portfolio": {},
+    "total_trades": 0,
+    "created_at": "2025-11-05T20:02:10.453823",
+    "last_updated": "2025-11-05T20:02:10.453823"
+  },
+  "demo_user_xmn0fxpof": {
+    "user_id": "demo_user_xmn0fxpof",
+    "username": "演示用户",
+    "cash": 100000,
+    "initial_cash": 100000,
+    "portfolio": {},
+    "total_trades": 0,
+    "created_at": "2025-11-05T22:58:20.013746",
+    "last_updated": "2025-11-05T22:58:20.013746"
   }
 }

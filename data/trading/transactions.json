@@ -178,5 +178,16 @@
     "profit": 1192.0,
     "profit_percent": 3.39,
     "timestamp": "2025-11-03T19:20:06.728585"
+  },
+  {
+    "transaction_id": "TXN-20251104215938-demo_use",
+    "user_id": "demo_user_010mj4ulk",
+    "type": "BUY",
+    "symbol": "AAPL",
+    "shares": 100,
+    "price": 176.03,
+    "total_cost": 17603.0,
+    "commission": 17.603,
+    "timestamp": "2025-11-04T21:59:38.968381"
   }
 ]

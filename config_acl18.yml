@@ -1,0 +1,28 @@
+dataset:
+  name: ACL18
+  description: 88只美股 (2014-2016) + Twitter推文
+  stocks: 88
+dates:
+  start: '2014-01-01'
+  end: '2016-01-01'
+  train_start: '2014-01-01'
+  train_end: '2015-08-01'
+  dev_start: '2015-08-01'
+  dev_end: '2015-10-01'
+  test_start: '2015-10-01'
+  test_end: '2016-01-01'
+paths:
+  data: data/cikm18/
+  price: cikm18/price/preprocessed
+  tweet_preprocessed: cikm18/tweet/preprocessed
+model:
+  batch_size: 32
+  learning_rate: 0.001
+  n_epochs: 15
+  max_n_days: 5
+  max_n_msgs: 30
+  max_n_words: 40
+causal:
+  method: granger
+  max_lags: 5
+  significance_level: 0.05

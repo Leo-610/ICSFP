@@ -2,7 +2,10 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>ICSFP - 智能因果股票预测平台</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
@@ -38,6 +41,27 @@
             line-height: 1.6;
             position: relative;
             overflow-x: hidden;
+            /* 移动端触摸优化 */
+            -webkit-tap-highlight-color: rgba(0, 102, 255, 0.1);
+            -webkit-touch-callout: none;
+            touch-action: manipulation;
+        }
+        
+        /* 移动端触摸反馈 */
+        a, button, .btn, .nav-link, .card {
+            -webkit-tap-highlight-color: rgba(0, 102, 255, 0.1);
+            touch-action: manipulation;
+        }
+        
+        /* 移动端输入框优化 */
+        input, select, textarea {
+            font-size: 16px; /* 防止iOS自动缩放 */
+        }
+        
+        @media (max-width: 768px) {
+            input, select, textarea {
+                font-size: 16px !important; /* iOS Safari需要 */
+            }
         }
         
         /* 粒子背景画布 */
@@ -80,8 +104,8 @@
         /* Navigation Bar */
         .navbar {
             background: rgba(30, 34, 45, 0.8);
-            backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
+            backdrop-filter: blur(20px);
             border-bottom: 1px solid rgba(209, 212, 220, 0.1);
             padding: 0 24px;
             position: sticky;
@@ -117,19 +141,28 @@
             align-items: center;
             justify-content: center;
             font-size: 20px;
-            animation: logoGlow 3s ease-in-out infinite;
             position: relative;
+            /* 桌面端才显示动画 */
+            box-shadow: 0 0 10px rgba(0, 102, 255, 0.3),
+                        0 0 15px rgba(0, 196, 140, 0.2);
+        }
+        
+        /* 仅在桌面端启用Logo动画 */
+        @media (min-width: 1025px) {
+            .logo-icon {
+                animation: logoGlow 4s ease-in-out infinite;
+            }
         }
         
         @keyframes logoGlow {
             0%, 100% {
-                box-shadow: 0 0 10px rgba(0, 102, 255, 0.5),
-                            0 0 20px rgba(0, 196, 140, 0.3);
+                box-shadow: 0 0 10px rgba(0, 102, 255, 0.3),
+                            0 0 15px rgba(0, 196, 140, 0.2);
             }
             50% {
-                box-shadow: 0 0 20px rgba(0, 102, 255, 0.8),
-                            0 0 40px rgba(0, 196, 140, 0.5),
-                            0 0 60px rgba(0, 102, 255, 0.3);
+                box-shadow: 0 0 15px rgba(0, 102, 255, 0.5),
+                            0 0 25px rgba(0, 196, 140, 0.3),
+                            0 0 35px rgba(0, 102, 255, 0.2);
             }
         }
         
@@ -195,16 +228,16 @@
         }
         
         .stat-card {
-            background: rgba(30, 34, 45, 0.6);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(209, 212, 220, 0.1);
+            background: rgba(30, 34, 45, 0.4);
+            -webkit-backdrop-filter: blur(25px) saturate(180%);
+            backdrop-filter: blur(25px) saturate(180%);
+            border: 1px solid rgba(209, 212, 220, 0.2);
             border-radius: 12px;
             padding: 20px;
             transition: all 0.3s;
             position: relative;
             overflow: hidden;
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
         }
         
         .stat-card::before {
@@ -282,62 +315,462 @@
             }
         }
         
-        /* 移动端优化 */
-        @media (max-width: 768px) {
-            .stats-bar {
-                grid-template-columns: repeat(2, 1fr);
+        /* 平板端优化 (768px - 1024px) */
+        @media (max-width: 1024px) and (min-width: 769px) {
+            .container {
+                padding: 20px 16px;
             }
             
-            .stat-value {
-                font-size: 24px;
+            .stats-bar {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px;
+            }
+        }
+        
+        /* 移动端优化 (481px - 768px) */
+        @media (max-width: 768px) {
+            body {
+                font-size: 14px;
+            }
+            
+            .navbar {
+                padding: 0 16px;
+            }
+            
+            .nav-container {
+                height: 56px;
+            }
+            
+            .logo {
+                font-size: 18px;
+            }
+            
+            .logo-icon {
+                width: 32px;
+                height: 32px;
+                font-size: 16px;
+            }
+            
+            .nav-links {
+                gap: 4px;
+            }
+            
+            .nav-link {
+                padding: 6px 12px;
+                font-size: 13px;
+            }
+            
+            .container {
+                padding: 16px 12px;
+            }
+            
+            .page-header {
+                margin-bottom: 20px;
             }
             
             .page-title {
-                font-size: 24px;
+                font-size: 22px;
+                margin-bottom: 6px;
+            }
+            
+            .page-subtitle {
+                font-size: 14px;
+            }
+            
+            .stats-bar {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
+                margin-bottom: 16px;
+            }
+            
+            .stat-card {
+                padding: 14px 16px;
+            }
+            
+            .stat-label {
+                font-size: 11px;
+                margin-bottom: 6px;
+            }
+            
+            .stat-value {
+                font-size: 22px;
+            }
+            
+            .stat-icon {
+                font-size: 18px;
+            }
+            
+            .stat-trend {
+                font-size: 12px;
+                margin-top: 4px;
+            }
+            
+            .card {
+                border-radius: 10px;
+            }
+            
+            .card-header {
+                padding: 14px 16px;
+            }
+            
+            .card-title {
+                font-size: 16px;
             }
             
             .card-body {
                 padding: 16px;
             }
             
-            /* 移动端禁用复杂动画 */
-            * {
-                animation-duration: 0s !important;
-                transition-duration: 0.1s !important;
+            .form-group {
+                margin-bottom: 14px;
             }
             
+            .form-label {
+                font-size: 13px;
+                margin-bottom: 6px;
+            }
+            
+            .form-input,
+            .form-select {
+                padding: 10px 12px;
+                font-size: 14px;
+            }
+            
+            .btn {
+                padding: 10px 18px;
+                font-size: 14px;
+            }
+            
+            .prediction-item {
+                padding: 12px;
+            }
+            
+            /* 概率条优化 */
+            .prediction-probabilities {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 10px;
+            }
+            
+            .prob-item {
+                justify-content: space-between;
+                width: 100%;
+                gap: 10px;
+            }
+            
+            .prob-label {
+                min-width: 40px;
+                flex-shrink: 0;
+            }
+            
+            .prob-bar {
+                flex: 1;
+                min-width: 100px;
+            }
+            
+            .prob-value {
+                min-width: 45px;
+                text-align: right;
+                flex-shrink: 0;
+            }
+            
+            /* 禁用悬停效果和3D卡片效果 */
             .stat-card:hover,
-            .card:hover {
-                transform: none;
-                box-shadow: none;
+            .card:hover,
+            .prediction-item:hover,
+            .position-item:hover {
+                transform: none !important;
+                box-shadow: inherit !important;
+            }
+            
+            /* 移除卡片悬浮前的伪元素动画 */
+            .stat-card::before,
+            .card::before {
+                display: none !important;
+            }
+            
+            /* 禁用所有无限循环动画 */
+            * {
+                animation-duration: 0.2s !important;
+            }
+            
+            /* 移除所有无限循环动画 */
+            .logo-icon,
+            .btn-primary,
+            .loading-spinner,
+            .prediction-icon,
+            .glow-effect {
+                animation: none !important;
             }
         }
         
+        /* 小屏手机优化 (≤480px) */
         @media (max-width: 480px) {
-            .stats-bar {
-                grid-template-columns: 1fr;
+            body {
+                font-size: 13px;
             }
             
-            .nav-links {
-                gap: 8px;
-                font-size: 12px;
+            .navbar {
+                padding: 0 12px;
+            }
+            
+            .nav-container {
+                height: 52px;
             }
             
             .logo {
+                font-size: 16px;
+            }
+            
+            .logo-icon {
+                width: 28px;
+                height: 28px;
+                font-size: 14px;
+            }
+            
+            .nav-links {
+                gap: 2px;
+                flex-wrap: wrap;
+            }
+            
+            .nav-link {
+                padding: 5px 8px;
+                font-size: 11px;
+                border-radius: 4px;
+            }
+            
+            .container {
+                padding: 12px 10px;
+            }
+            
+            .page-header {
+                margin-bottom: 16px;
+            }
+            
+            .page-title {
+                font-size: 20px;
+            }
+            
+            .page-subtitle {
+                font-size: 12px;
+            }
+            
+            .stats-bar {
+                grid-template-columns: 1fr;
+                gap: 8px;
+                margin-bottom: 12px;
+            }
+            
+            .stat-card {
+                padding: 12px 14px;
+            }
+            
+            .stat-label {
+                font-size: 10px;
+            }
+            
+            .stat-value {
+                font-size: 20px;
+            }
+            
+            .stat-icon {
+                font-size: 16px;
+            }
+            
+            .card {
+                border-radius: 8px;
+                margin-bottom: 12px;
+            }
+            
+            .card-header {
+                padding: 12px 14px;
+            }
+            
+            .card-title {
+                font-size: 15px;
+            }
+            
+            .card-body {
+                padding: 14px;
+            }
+            
+            .form-group {
+                margin-bottom: 12px;
+            }
+            
+            .form-label {
+                font-size: 12px;
+                margin-bottom: 5px;
+            }
+            
+            .form-input,
+            .form-select {
+                padding: 9px 11px;
+                font-size: 13px;
+            }
+            
+            .btn {
+                padding: 9px 16px;
+                font-size: 13px;
+            }
+            
+            .checkbox-group {
+                padding: 10px;
+            }
+            
+            .checkbox-label {
+                font-size: 12px;
+            }
+            
+            /* 预测结果优化 */
+            .prediction-header {
+                padding: 16px;
+            }
+            
+            .prediction-stock {
+                font-size: 20px;
+            }
+            
+            .prediction-meta {
+                font-size: 12px;
+                flex-direction: column;
+                gap: 6px;
+            }
+            
+            .prediction-item {
+                padding: 10px;
+            }
+            
+            .prediction-date {
+                font-size: 12px;
+            }
+            
+            .prediction-result {
+                font-size: 13px;
+            }
+            
+            .confidence-bar {
+                height: 6px;
+            }
+            
+            /* 概率条垂直排列 */
+            .prediction-probabilities {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 8px;
+            }
+            
+            .prob-item {
+                justify-content: space-between;
+                width: 100%;
+                font-size: 12px;
+                gap: 8px;
+            }
+            
+            .prob-label {
+                min-width: 35px;
+                flex-shrink: 0;
+            }
+            
+            .prob-bar {
+                flex: 1;
+                min-width: 80px;
+                height: 6px;
+            }
+            
+            .prob-value {
+                min-width: 40px;
+                text-align: right;
+                flex-shrink: 0;
+                font-size: 12px;
+            }
+            
+            /* 图表容器优化 */
+            #predictionChart {
+                height: 250px !important;
+            }
+            
+            /* 彻底禁用所有动画 */
+            * {
+                animation: none !important;
+                transition: none !important;
+            }
+            
+            /* 保留必要的过渡效果 */
+            a, button, .btn {
+                transition: background-color 0.1s ease !important;
+            }
+        }
+        
+        /* 超小屏优化 (≤360px) */
+        @media (max-width: 360px) {
+            .navbar {
+                padding: 0 8px;
+            }
+            
+            .logo {
+                font-size: 14px;
+            }
+            
+            .logo-icon {
+                width: 24px;
+                height: 24px;
+                font-size: 12px;
+            }
+            
+            .nav-link {
+                padding: 4px 6px;
+                font-size: 10px;
+            }
+            
+            .page-title {
                 font-size: 18px;
+            }
+            
+            .stat-value {
+                font-size: 18px;
+            }
+            
+            .container {
+                padding: 10px 8px;
+            }
+            
+            /* 概率条超小屏优化 */
+            .prob-item {
+                font-size: 11px;
+            }
+            
+            .prob-label {
+                min-width: 30px;
+            }
+            
+            .prob-bar {
+                min-width: 60px;
+                height: 5px;
+            }
+            
+            .prob-value {
+                min-width: 35px;
+                font-size: 11px;
+            }
+            
+            /* 彻底禁用所有动画 */
+            * {
+                animation: none !important;
+                transition: none !important;
             }
         }
         
         /* Card Styles */
         .card {
-            background: rgba(30, 34, 45, 0.6);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(209, 212, 220, 0.1);
+            background: rgba(30, 34, 45, 0.4);
+            -webkit-backdrop-filter: blur(25px) saturate(180%);
+            backdrop-filter: blur(25px) saturate(180%);
+            border: 1px solid rgba(209, 212, 220, 0.2);
             border-radius: 12px;
             overflow: hidden;
             transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
         }
         
         .card:hover {
@@ -502,6 +935,7 @@
             color: var(--text-primary);
             font-size: 14px;
             cursor: pointer;
+            -webkit-user-select: none;
             user-select: none;
         }
         
@@ -986,6 +1420,8 @@
             <div class="nav-links">
                 <a href="/" class="nav-link active">预测</a>
                 <a href="/trading" class="nav-link">💹 模拟交易</a>
+                <a href="/visualization" class="nav-link">📊 可视化</a>
+                <a href="/realtime" class="nav-link">⚡ 实时监控</a>
                 <a href="/about" class="nav-link">关于</a>
                 <a href="/health" class="nav-link">状态</a>
             </div>
@@ -1051,13 +1487,45 @@
                         </div>
                         
                         <div class="form-group">
-                            <label class="form-label">开始日期</label>
-                            <input type="date" id="startDate" class="form-input" required>
+                            <label class="form-label">数据源</label>
+                            <select id="dataSource" class="form-select" required>
+                                <option value="historical">历史数据（指定日期范围）</option>
+                                <option value="realtime">实时数据（最新市场数据）</option>
+                            </select>
+                            <p style="font-size: 12px; color: var(--text-secondary); margin-top: 8px;">
+                                💡 实时数据将自动获取最新市场行情进行预测
+                            </p>
                         </div>
                         
-                        <div class="form-group">
-                            <label class="form-label">结束日期</label>
-                            <input type="date" id="endDate" class="form-input" required>
+                        <div id="historicalDateGroup">
+                            <div class="form-group">
+                                <label class="form-label">开始日期</label>
+                                <input type="date" id="startDate" class="form-input" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">结束日期</label>
+                                <input type="date" id="endDate" class="form-input" required>
+                            </div>
+                        </div>
+                        
+                        <div id="realtimeOptionsGroup" style="display: none;">
+                            <div class="form-group">
+                                <label class="form-label">预测天数</label>
+                                <select id="predictionDays" class="form-select">
+                                    <option value="1">1天（明天）</option>
+                                    <option value="3" selected>3天</option>
+                                    <option value="5">5天（一周）</option>
+                                    <option value="7">7天</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="checkbox-group">
+                                    <input type="checkbox" id="showConfidence" checked>
+                                    <span class="checkbox-label">显示置信度分析</span>
+                                </label>
+                            </div>
                         </div>
                         
                         <div class="form-group">
@@ -1314,22 +1782,132 @@
             document.getElementById('summarySection').style.display = 'block';
         }
         
+        // 监听数据源切换
+        document.getElementById('dataSource').addEventListener('change', function() {
+            const isRealtime = this.value === 'realtime';
+            const historicalGroup = document.getElementById('historicalDateGroup');
+            const realtimeGroup = document.getElementById('realtimeOptionsGroup');
+            const startDateInput = document.getElementById('startDate');
+            const endDateInput = document.getElementById('endDate');
+            
+            if (isRealtime) {
+                historicalGroup.style.display = 'none';
+                realtimeGroup.style.display = 'block';
+                // 移除日期的required属性
+                startDateInput.removeAttribute('required');
+                endDateInput.removeAttribute('required');
+            } else {
+                historicalGroup.style.display = 'block';
+                realtimeGroup.style.display = 'none';
+                // 恢复日期的required属性
+                startDateInput.setAttribute('required', 'required');
+                endDateInput.setAttribute('required', 'required');
+            }
+        });
+        
         // 预测表单提交
         document.getElementById('predictionForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             
             const stock = document.getElementById('stockSymbol').value;
-            const startDate = document.getElementById('startDate').value;
-            const endDate = document.getElementById('endDate').value;
+            const dataSource = document.getElementById('dataSource').value;
             const useCausal = document.getElementById('useCausal').checked;
             
-            // 显示加载状态
+            // 根据数据源类型调用不同的预测方法
+            if (dataSource === 'realtime') {
+                await predictWithRealtimeData(stock, useCausal);
+            } else {
+                const startDate = document.getElementById('startDate').value;
+                const endDate = document.getElementById('endDate').value;
+                await predictWithHistoricalData(stock, startDate, endDate, useCausal);
+            }
+        });
+        
+        // 实时数据预测
+        async function predictWithRealtimeData(stock, useCausal) {
             const resultCard = document.getElementById('resultCard');
             const loadingSpinner = document.getElementById('loadingSpinner');
             const resultsDiv = document.getElementById('predictionResults');
             const summarySection = document.getElementById('summarySection');
             const chartSection = document.getElementById('chartSection');
             
+            // 显示加载状态
+            resultCard.classList.add('show', 'slide-in-right');
+            loadingSpinner.classList.add('show');
+            resultsDiv.innerHTML = '';
+            summarySection.style.display = 'none';
+            chartSection.style.display = 'none';
+            
+            // 更新加载文本
+            const loadingText = document.querySelector('.loading-text');
+            if (loadingText) {
+                loadingText.textContent = '正在获取实时市场数据...';
+            }
+            
+            try {
+                const predictionDays = parseInt(document.getElementById('predictionDays').value);
+                const showConfidence = document.getElementById('showConfidence').checked;
+                
+                // 调用实时预测API
+                const response = await fetch('http://localhost:5000/api/v1/realtime/predict/horizon', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        symbol: stock,
+                        days: predictionDays,
+                        use_causal: useCausal
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const result = await response.json();
+                
+                // 隐藏加载状态
+                loadingSpinner.classList.remove('show');
+                
+                if (result.status !== 'success' || !result.data) {
+                    throw new Error(result.message || '预测失败');
+                }
+                
+                const data = result.data;
+                
+                // 渲染实时预测结果
+                renderRealtimePredictionResults(data, stock, showConfidence);
+                
+            } catch (error) {
+                console.error('实时预测错误:', error);
+                loadingSpinner.classList.remove('show');
+                resultsDiv.innerHTML = `
+                    <div class="error-state fade-in">
+                        <div class="error-icon">❌</div>
+                        <div class="error-title">实时预测失败</div>
+                        <div class="error-message">${error.message}</div>
+                        <div class="error-details">
+                            请检查：<br>
+                            • 实时数据服务是否正常运行<br>
+                            • 股票代码是否正确<br>
+                            • 网络连接是否正常<br>
+                            • 查看浏览器控制台获取详细信息
+                        </div>
+                    </div>
+                `;
+            }
+        }
+        
+        // 历史数据预测（原有功能）
+        async function predictWithHistoricalData(stock, startDate, endDate, useCausal) {
+            const resultCard = document.getElementById('resultCard');
+            const loadingSpinner = document.getElementById('loadingSpinner');
+            const resultsDiv = document.getElementById('predictionResults');
+            const summarySection = document.getElementById('summarySection');
+            const chartSection = document.getElementById('chartSection');
+            
+            // 显示加载状态
             resultCard.classList.add('show', 'slide-in-right');
             loadingSpinner.classList.add('show');
             resultsDiv.innerHTML = '';
@@ -1406,7 +1984,201 @@
                     </div>
                 `;
             }
-        });
+        }
+        
+        // 渲染实时预测结果
+        function renderRealtimePredictionResults(data, stock, showConfidence) {
+            const resultsDiv = document.getElementById('predictionResults');
+            const summarySection = document.getElementById('summarySection');
+            const chartSection = document.getElementById('chartSection');
+            
+            // 创建实时数据摘要卡片
+            const summaryCards = document.getElementById('summaryCards');
+            summaryCards.innerHTML = `
+                <div class="summary-card fade-in">
+                    <div class="summary-label">当前价格</div>
+                    <div class="summary-value" style="color: var(--primary-color);">
+                        $${data.current_price ? data.current_price.toFixed(2) : 'N/A'}
+                    </div>
+                </div>
+                <div class="summary-card fade-in" style="animation-delay: 0.1s">
+                    <div class="summary-label">预测方向</div>
+                    <div class="summary-value" style="color: ${data.predictions && data.predictions[0]?.predicted_direction === 'UP' ? 'var(--secondary-color)' : 'var(--danger-color)'}">
+                        ${data.predictions && data.predictions[0]?.predicted_direction === 'UP' ? '↗ 上涨' : '↘ 下跌'}
+                    </div>
+                </div>
+                <div class="summary-card fade-in" style="animation-delay: 0.2s">
+                    <div class="summary-label">平均置信度</div>
+                    <div class="summary-value">
+                        ${data.predictions ? (data.predictions.reduce((sum, p) => sum + Math.max(p.probabilities.UP, p.probabilities.DOWN), 0) / data.predictions.length * 100).toFixed(1) : 'N/A'}%
+                    </div>
+                </div>
+                <div class="summary-card fade-in" style="animation-delay: 0.3s">
+                    <div class="summary-label">预测天数</div>
+                    <div class="summary-value">
+                        ${data.predictions ? data.predictions.length : 0} 天
+                    </div>
+                </div>
+            `;
+            summarySection.style.display = 'block';
+            
+            // 创建图表
+            if (data.predictions && data.predictions.length > 0) {
+                chartSection.style.display = 'block';
+                setTimeout(() => {
+                    createPredictionChart(data.predictions);
+                }, 100);
+            }
+            
+            // 渲染详细预测结果
+            let html = `
+                <div class="prediction-header fade-in">
+                    <div class="prediction-stock gradient-text">${stock}</div>
+                    <div class="prediction-meta">
+                        <span>⚡ 实时数据</span>
+                        <span>•</span>
+                        <span>📅 ${data.predictions ? data.predictions.length : 0} 个交易日</span>
+                        <span>•</span>
+                        <span>🕐 ${new Date().toLocaleString('zh-CN')}</span>
+                    </div>
+                </div>
+            `;
+            
+            // 如果有置信度分析
+            if (showConfidence && data.confidence_analysis) {
+                html += `
+                    <div class="confidence-panel fade-in" style="
+                        background: var(--surface-color);
+                        border-radius: 12px;
+                        padding: 20px;
+                        margin-bottom: 20px;
+                        border: 1px solid var(--border-color);
+                    ">
+                        <h3 style="color: var(--text-primary); margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
+                            <span>📊</span>
+                            <span>置信度分析</span>
+                        </h3>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
+                            <div style="text-align: center;">
+                                <div style="color: var(--text-secondary); font-size: 12px; margin-bottom: 4px;">平均置信度</div>
+                                <div style="color: var(--primary-color); font-size: 24px; font-weight: 600;">
+                                    ${(data.confidence_analysis.mean * 100).toFixed(1)}%
+                                </div>
+                            </div>
+                            <div style="text-align: center;">
+                                <div style="color: var(--text-secondary); font-size: 12px; margin-bottom: 4px;">标准差</div>
+                                <div style="color: var(--warning-color); font-size: 24px; font-weight: 600;">
+                                    ${(data.confidence_analysis.std * 100).toFixed(1)}%
+                                </div>
+                            </div>
+                            <div style="text-align: center;">
+                                <div style="color: var(--text-secondary); font-size: 12px; margin-bottom: 4px;">最大置信度</div>
+                                <div style="color: var(--secondary-color); font-size: 24px; font-weight: 600;">
+                                    ${(data.confidence_analysis.max * 100).toFixed(1)}%
+                                </div>
+                            </div>
+                            <div style="text-align: center;">
+                                <div style="color: var(--text-secondary); font-size: 12px; margin-bottom: 4px;">最小置信度</div>
+                                <div style="color: var(--danger-color); font-size: 24px; font-weight: 600;">
+                                    ${(data.confidence_analysis.min * 100).toFixed(1)}%
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            html += '<div class="prediction-list">';
+            
+            // 预测列表
+            if (data.predictions) {
+                data.predictions.forEach((pred, index) => {
+                    const isUp = pred.predicted_direction === 'UP';
+                    const upProb = (pred.probabilities.UP * 100).toFixed(1);
+                    const downProb = (pred.probabilities.DOWN * 100).toFixed(1);
+                    const badgeClass = isUp ? 'badge-up' : 'badge-down';
+                    const directionText = isUp ? '↗ 上涨' : '↘ 下跌';
+                    const confidence = Math.max(upProb, downProb);
+                    
+                    // 置信度等级
+                    let confidenceLevel = '低';
+                    let confidenceColor = 'var(--danger-color)';
+                    if (confidence >= 80) {
+                        confidenceLevel = '高';
+                        confidenceColor = 'var(--secondary-color)';
+                    } else if (confidence >= 60) {
+                        confidenceLevel = '中';
+                        confidenceColor = 'var(--warning-color)';
+                    }
+                    
+                    html += `
+                        <div class="prediction-item fade-in" style="animation-delay: ${index * 0.05}s">
+                            <div class="prediction-date">
+                                ${pred.date || `T+${index + 1}`}
+                                ${showConfidence ? `<span style="
+                                    color: ${confidenceColor};
+                                    font-size: 11px;
+                                    background: ${confidenceColor}20;
+                                    padding: 2px 8px;
+                                    border-radius: 10px;
+                                    margin-left: 8px;
+                                ">置信度: ${confidenceLevel}</span>` : ''}
+                            </div>
+                            <div class="prediction-probabilities">
+                                <div class="prob-item">
+                                    <span class="prob-label">上涨</span>
+                                    <div class="prob-bar">
+                                        <div class="prob-fill up" style="width: ${upProb}%; animation-delay: ${index * 0.05}s"></div>
+                                    </div>
+                                    <span class="prob-value">${upProb}%</span>
+                                </div>
+                                <div class="prob-item">
+                                    <span class="prob-label">下跌</span>
+                                    <div class="prob-bar">
+                                        <div class="prob-fill down" style="width: ${downProb}%; animation-delay: ${index * 0.05}s"></div>
+                                    </div>
+                                    <span class="prob-value">${downProb}%</span>
+                                </div>
+                            </div>
+                            <div class="prediction-badge ${badgeClass}">
+                                ${directionText}
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+            
+            html += '</div>';
+            
+            // 添加查看详细图表按钮
+            html += `
+                <div style="text-align: center; margin-top: 24px;">
+                    <a href="/visualization?symbol=${stock}" target="_blank" class="btn btn-primary" style="display: inline-flex; align-items: center; gap: 8px;">
+                        <span>📊</span>
+                        <span>查看详细图表</span>
+                    </a>
+                    <a href="/realtime?symbol=${stock}" target="_blank" class="btn" style="
+                        display: inline-flex;
+                        align-items: center;
+                        gap: 8px;
+                        margin-left: 12px;
+                        background: var(--surface-color);
+                        color: var(--text-primary);
+                        border: 1px solid var(--border-color);
+                    ">
+                        <span>⚡</span>
+                        <span>实时监控</span>
+                    </a>
+                </div>
+            `;
+            
+            resultsDiv.innerHTML = html;
+            
+            // 滚动到结果
+            setTimeout(() => {
+                document.getElementById('resultCard').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }, 200);
+        }
         
         // 渲染预测结果
         function renderPredictionResults(data, useCausal) {
