@@ -10,6 +10,15 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 import numpy as np
 import matplotlib.pyplot as plt
 from causal_discovery_manager import CausalDiscoveryManager
+from utils.visualization import (
+    setup_chinese_font, 
+    plot_causal_graph,
+    plot_method_comparison,
+    plot_sensitivity_analysis
+)
+
+# 设置中文字体支持
+setup_chinese_font()
 
 def generate_causal_data(n_samples=200, n_stocks=10):
     """
@@ -64,18 +73,15 @@ def example_basic_cuts_plus():
     print(f"密度: {info.get('density', 0):.2%}")
     print(f"计算时间: {info['computation_time']:.2f}秒")
     
-    # 可视化因果图
-    plt.figure(figsize=(10, 8))
-    plt.imshow(causal_graph, cmap='hot', interpolation='nearest')
-    plt.colorbar(label='因果强度')
-    plt.title('CUTS+因果图')
-    plt.xlabel('影响股票')
-    plt.ylabel('被影响股票')
-    plt.xticks(range(len(stock_names)), stock_names, rotation=45)
-    plt.yticks(range(len(stock_names)), stock_names)
-    plt.tight_layout()
-    plt.savefig('cuts_plus_causal_graph.png', dpi=150)
-    print("\n因果图已保存到 cuts_plus_causal_graph.png")
+    # 使用可视化工具绘制因果图
+    plot_causal_graph(
+        causal_graph=causal_graph,
+        stock_names=stock_names,
+        title='CUTS+因果图',
+        save_path='cuts_plus_causal_graph.png',
+        figsize=(10, 8),
+        cmap='hot'
+    )
     
     return causal_graph, info
 
@@ -113,19 +119,13 @@ def example_compare_methods():
         print(f"  稀疏度: {info['sparsity']:.2%}")
         print(f"  时间: {info['computation_time']:.2f}秒")
     
-    # 可视化比较
-    fig, axes = plt.subplots(1, 3, figsize=(18, 5))
-    
-    for ax, (name, (graph, info)) in zip(axes, results.items()):
-        im = ax.imshow(graph, cmap='hot', interpolation='nearest')
-        ax.set_title(f'{name}\n边数: {info["n_edges"]}, 稀疏度: {info["sparsity"]:.1%}')
-        ax.set_xlabel('影响股票')
-        ax.set_ylabel('被影响股票')
-        plt.colorbar(im, ax=ax)
-    
-    plt.tight_layout()
-    plt.savefig('method_comparison.png', dpi=150)
-    print("\n\n比较图已保存到 method_comparison.png")
+    # 使用可视化工具绘制对比图
+    plot_method_comparison(
+        results=results,
+        stock_names=stock_names,
+        save_path='method_comparison.png',
+        figsize=(18, 5)
+    )
     
     return results
 
@@ -159,26 +159,20 @@ def example_sensitivity_analysis():
         print(f"  边数: {info['n_edges']}")
         print(f"  稀疏度: {info['sparsity']:.2%}")
     
-    # 绘制结果
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 4))
-    
+    # 使用可视化工具绘制敏感性分析图
     alphas_list, edges_list, sparsity_list = zip(*results)
     
-    ax1.plot(alphas_list, edges_list, 'bo-', linewidth=2, markersize=8)
-    ax1.set_xlabel('稀疏性阈值 (alpha)')
-    ax1.set_ylabel('检测到的边数')
-    ax1.set_title('边数 vs 稀疏性阈值')
-    ax1.grid(True, alpha=0.3)
-    
-    ax2.plot(alphas_list, sparsity_list, 'ro-', linewidth=2, markersize=8)
-    ax2.set_xlabel('稀疏性阈值 (alpha)')
-    ax2.set_ylabel('实际稀疏度')
-    ax2.set_title('稀疏度 vs 稀疏性阈值')
-    ax2.grid(True, alpha=0.3)
-    
-    plt.tight_layout()
-    plt.savefig('sensitivity_analysis.png', dpi=150)
-    print("\n\n敏感性分析图已保存到 sensitivity_analysis.png")
+    plot_sensitivity_analysis(
+        param_values=list(alphas_list),
+        metrics={
+            '检测到的边数': list(edges_list),
+            '实际稀疏度': list(sparsity_list)
+        },
+        param_name='稀疏性阈值 (alpha)',
+        title='CUTS+ 稀疏性参数敏感性分析',
+        save_path='sensitivity_analysis.png',
+        figsize=(12, 4)
+    )
 
 def example_large_scale():
     """示例4：大规模数据集"""
@@ -219,16 +213,15 @@ def example_large_scale():
     print(f"最大入度: {np.max(in_degrees)} (股票{np.argmax(in_degrees)})")
     print(f"最大出度: {np.max(out_degrees)} (股票{np.argmax(out_degrees)})")
     
-    # 可视化大规模因果图
-    plt.figure(figsize=(12, 10))
-    plt.imshow(causal_graph, cmap='hot', interpolation='nearest')
-    plt.colorbar(label='因果强度')
-    plt.title(f'大规模因果网络 (20股票)\n边数: {info["n_edges"]}, 稀疏度: {info["sparsity"]:.1%}')
-    plt.xlabel('影响股票')
-    plt.ylabel('被影响股票')
-    plt.tight_layout()
-    plt.savefig('large_scale_network.png', dpi=150)
-    print("\n大规模网络图已保存到 large_scale_network.png")
+    # 使用可视化工具绘制大规模网络
+    plot_causal_graph(
+        causal_graph=causal_graph,
+        stock_names=stock_names,
+        title=f'大规模因果网络 (20股票)\n边数: {info["n_edges"]}, 稀疏度: {info["sparsity"]:.1%}',
+        save_path='large_scale_network.png',
+        figsize=(12, 10),
+        cmap='hot'
+    )
 
 def main():
     """运行所有示例"""
