@@ -73,9 +73,19 @@ class StockMapper:
         with open(file_path, 'r', encoding='utf-8') as f:
             data = json.load(f)
         
-        stocks = data.get('stocks', [])
-        for idx, stock in enumerate(stocks):
+        # 支持两种格式：{'stocks': [...]} 或直接 [...]
+        if isinstance(data, dict):
+            stocks = data.get('stocks', [])
+        elif isinstance(data, list):
+            stocks = data
+        else:
+            raise ValueError(f"Invalid JSON format: expected dict or list, got {type(data)}")
+        
+        for stock in stocks:
+            # 获取索引，如果没有提供则自动分配
+            idx = stock.get('index', len(self.code_to_idx))
             code = stock['code']
+            
             self.code_to_idx[code] = idx
             self.idx_to_code[idx] = code
             self.stock_info[code] = {
@@ -89,6 +99,7 @@ class StockMapper:
             if sector not in self.sectors:
                 self.sectors[sector] = []
             self.sectors[sector].append(code)
+
     
     def _load_from_csv(self, file_path: Path):
         """从CSV文件加载"""
