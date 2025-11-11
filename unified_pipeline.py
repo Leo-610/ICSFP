@@ -238,7 +238,7 @@ class UnifiedPipeline:
         start_date: Optional[str],
         end_date: Optional[str]
     ) -> Dict[str, Any]:
-        """加载数据"""
+        """加载真实数据 - 从DataPipe提取价格序列"""
         start_time = time.time()
         
         try:
@@ -254,8 +254,8 @@ class UnifiedPipeline:
             logger.info(f"Loading data for {len(stock_list)} stocks")
             logger.info(f"Date range: {start_date or 'default'} to {end_date or 'default'}")
             
-            # 使用 DataPipe 获取数据
-            price_data = self._get_price_data_from_pipe(stock_list)
+            # 从 DataPipe 批次中提取真实价格数据
+            price_data = self._extract_price_data_from_batches(stock_list, phase='train')
             
             elapsed = time.time() - start_time
             self.metrics['data_loading_time'] += elapsed
@@ -275,27 +275,89 @@ class UnifiedPipeline:
             logger.error(f"Error loading data: {e}")
             raise
     
-    def _get_price_data_from_pipe(self, stock_list: List[str]) -> np.ndarray:
-        """从 DataPipe 获取价格数据"""
+    def _extract_price_data_from_batches(
+        self, 
+        stock_list: List[str], 
+        phase: str = 'train',
+        max_samples: int = 100
+    ) -> np.ndarray:
+        """
+        从 DataPipe 批次中提取真实价格数据
+        
+        Args:
+            stock_list: 股票列表
+            phase: 数据阶段 ('train', 'dev', 'test')
+            max_samples: 最大采样数量
+            
+        Returns:
+            price_data: 形状为 (n_timesteps, n_stocks) 的价格矩阵
+        """
         try:
-            # 尝试从 data_pipe 获取数据
-            if hasattr(self.data_loader, 'data_pipe') and self.data_loader.data_pipe:
-                # 生成模拟数据（实际应该从 data_pipe 获取）
-                n_stocks = len(stock_list)
-                n_days = 20
-                return np.random.randn(n_days, n_stocks) * 0.02 + 100.0
-            else:
-                # 后备：生成模拟数据
-                n_stocks = len(stock_list)
-                n_days = 20
-                logger.warning("Using mock data")
-                return np.random.randn(n_days, n_stocks) * 0.02 + 100.0
+            # 获取股票ID映射
+            data_pipe = self.data_loader.data_pipe
+            stock_id_dict = data_pipe.index_token(stock_list, key='token', type='stock')
+            
+            # 收集价格数据
+            all_prices = []
+            sample_count = 0
+            
+            logger.info(f"Extracting price data for {len(stock_list)} stocks from {phase} phase")
+            
+            # 从批次生成器中提取数据
+            for batch in data_pipe.batch_gen(phase=phase):
+                if sample_count >= max_samples:
+                    break
                 
+                # price_batch shape: (batch_size, max_n_days, 3)
+                # 第3维: [open, high, low] 或 [close, high, low]
+                price_batch = batch['price_batch']
+                T_batch = batch['T_batch']
+                stock_batch = batch['stock_batch']
+                
+                # 提取每个样本的收盘价格序列
+                for i in range(batch['batch_size']):
+                    T = T_batch[i]
+                    stock_id = stock_batch[i]
+                    
+                    # 获取该股票在stock_list中的索引
+                    try:
+                        stock_idx = list(stock_id_dict.values()).index(stock_id)
+                    except ValueError:
+                        continue  # 跳过不在目标列表中的股票
+                    
+                    # 提取价格序列 (使用第一列作为主要价格)
+                    prices = price_batch[i, :T, 0]  # shape: (T,)
+                    
+                    # 构建一个包含该股票价格的向量
+                    price_vec = np.zeros(len(stock_list))
+                    price_vec[stock_idx] = prices[-1] if len(prices) > 0 else 0.0
+                    
+                    all_prices.append(price_vec)
+                    sample_count += 1
+                    
+                    if sample_count >= max_samples:
+                        break
+            
+            if len(all_prices) == 0:
+                logger.warning("No price data extracted, using small random fallback")
+                return np.random.randn(20, len(stock_list)) * 0.01 + 100.0
+            
+            # 转换为矩阵 (n_timesteps, n_stocks)
+            price_matrix = np.array(all_prices)
+            
+            logger.info(f"Extracted price matrix shape: {price_matrix.shape}")
+            logger.info(f"Price statistics - mean: {price_matrix.mean():.2f}, "
+                       f"std: {price_matrix.std():.2f}, "
+                       f"min: {price_matrix.min():.2f}, max: {price_matrix.max():.2f}")
+            
+            return price_matrix
+            
         except Exception as e:
-            logger.warning(f"Error getting price data: {e}, using mock data")
-            n_stocks = len(stock_list)
-            n_days = 20
-            return np.random.randn(n_days, n_stocks) * 0.02 + 100.0
+            logger.error(f"Error extracting price data: {e}")
+            logger.warning("Falling back to minimal random data")
+            import traceback
+            traceback.print_exc()
+            return np.random.randn(20, len(stock_list)) * 0.01 + 100.0
     
     def _discover_causality(
         self,
@@ -304,53 +366,53 @@ class UnifiedPipeline:
         method: str = 'granger',
         threshold: float = 0.3
     ) -> Dict[str, Any]:
-        """执行因果发现"""
+        """
+        执行因果发现 - 不使用异常捕获，让真实错误暴露
+        
+        Args:
+            data: 时间序列数据 (n_timesteps, n_stocks)
+            stock_list: 股票列表
+            method: 因果发现方法
+            threshold: 阈值
+            
+        Returns:
+            结果字典包含图、统计信息等
+        """
         start_time = time.time()
         
-        try:
-            logger.info(f"Using method: {method}")
-            logger.info(f"Data shape: {data.shape}")
-            logger.info(f"Threshold: {threshold}")
-            
-            # 计算因果图
-            graph, metadata = self.causal_manager.compute_causal_graph(
-                data=data,
-                stock_names=stock_list,
-                method=method,
-                max_lag=5,
-                threshold=threshold
-            )
-            
-            # 获取统计信息
-            stats = self.causal_manager.get_graph_statistics(graph, threshold)
-            
-            elapsed = time.time() - start_time
-            self.metrics['causal_discovery_time'] += elapsed
-            
-            logger.info(f"✓ Causal graph computed ({elapsed:.3f}s)")
-            logger.info(f"  - Nodes: {stats['num_nodes']}")
-            logger.info(f"  - Edges: {stats['num_edges']}")
-            logger.info(f"  - Density: {stats['density']:.4f}")
-            
-            return {
-                'graph': graph,
-                'method': method,
-                'threshold': threshold,
-                'statistics': stats,
-                'metadata': metadata
-            }
-            
-        except Exception as e:
-            logger.error(f"Error in causal discovery: {e}")
-            # 返回单位矩阵作为后备
-            n = data.shape[1] if len(data.shape) > 1 else 10
-            return {
-                'graph': np.eye(n),
-                'method': method,
-                'threshold': threshold,
-                'statistics': {'num_nodes': n, 'num_edges': 0, 'density': 0.0},
-                'error': str(e)
-            }
+        logger.info(f"Using method: {method}")
+        logger.info(f"Data shape: {data.shape}")
+        logger.info(f"Stock list: {stock_list}")
+        logger.info(f"Threshold: {threshold}")
+        
+        # 计算因果图 - 正确传递所有必需参数
+        graph, metadata = self.causal_manager.compute_causal_graph(
+            data=data,
+            stock_names=stock_list,
+            method=method,
+            max_lag=5,
+            threshold=threshold
+        )
+        
+        # 获取统计信息 - 使用新添加的方法
+        stats = self.causal_manager.get_graph_statistics(graph, threshold)
+        
+        elapsed = time.time() - start_time
+        self.metrics['causal_discovery_time'] += elapsed
+        
+        logger.info(f"✓ Causal graph computed ({elapsed:.3f}s)")
+        logger.info(f"  - Nodes: {stats['num_nodes']}")
+        logger.info(f"  - Edges: {stats['num_edges']}")
+        logger.info(f"  - Density: {stats['density']:.4f}")
+        logger.info(f"  - Sparsity: {stats['sparsity']:.4f}")
+        
+        return {
+            'graph': graph,
+            'method': method,
+            'threshold': threshold,
+            'statistics': stats,
+            'metadata': metadata
+        }
     
     def _update_predictor_graph(self, causal_graph: np.ndarray):
         """更新预测器的因果图"""

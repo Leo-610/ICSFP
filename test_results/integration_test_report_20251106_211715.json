@@ -1,0 +1,16 @@
+[
+  {
+    "dataset": "cikm18",
+    "method": "granger",
+    "timestamp": "2025-11-06T21:17:15.220852",
+    "success": false,
+    "error": "Failed to load dataset"
+  },
+  {
+    "dataset": "cikm18",
+    "method": "transfer_entropy",
+    "timestamp": "2025-11-06T21:17:15.220852",
+    "success": false,
+    "error": "Failed to load dataset"
+  }
+]

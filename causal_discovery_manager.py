@@ -13,7 +13,7 @@ import hashlib
 import numpy as np
 import pandas as pd
 from pathlib import Path
-from typing import Dict, List, Tuple, Optional, Union
+from typing import Dict, List, Tuple, Optional, Union, Any
 from datetime import datetime
 import warnings
 warnings.filterwarnings('ignore')
@@ -558,6 +558,92 @@ class CausalDiscoveryManager:
         }
         
         return performance
+    
+    def get_graph_statistics(
+        self,
+        graph: np.ndarray,
+        threshold: float = 0.0
+    ) -> Dict[str, Any]:
+        """
+        计算因果图的统计信息
+        
+        Args:
+            graph: 因果图矩阵 (n_stocks x n_stocks)
+            threshold: 边权重阈值，用于过滤弱边
+            
+        Returns:
+            statistics: 统计信息字典，包含:
+                - num_nodes: 节点数量
+                - num_edges: 边数量
+                - density: 图密度
+                - sparsity: 稀疏度
+                - avg_weight: 平均边权重
+                - max_weight: 最大边权重
+                - min_nonzero_weight: 最小非零边权重
+                - threshold_used: 使用的阈值
+                - in_degrees: 入度分布
+                - out_degrees: 出度分布
+        """
+        if graph is None or graph.size == 0:
+            return {
+                'num_nodes': 0,
+                'num_edges': 0,
+                'density': 0.0,
+                'sparsity': 1.0,
+                'avg_weight': 0.0,
+                'max_weight': 0.0,
+                'min_nonzero_weight': 0.0,
+                'threshold_used': threshold
+            }
+        
+        n = graph.shape[0]
+        
+        # 应用阈值过滤
+        binary_graph = (np.abs(graph) > threshold).astype(int)
+        n_edges = np.sum(binary_graph)
+        
+        # 计算度分布
+        in_degrees = np.sum(binary_graph, axis=0)  # 每列的和
+        out_degrees = np.sum(binary_graph, axis=1)  # 每行的和
+        
+        # 计算权重统计
+        nonzero_weights = graph[graph > threshold]
+        avg_weight = float(np.mean(nonzero_weights)) if len(nonzero_weights) > 0 else 0.0
+        max_weight = float(np.max(graph)) if graph.size > 0 else 0.0
+        min_nonzero_weight = float(np.min(nonzero_weights)) if len(nonzero_weights) > 0 else 0.0
+        
+        # 计算密度和稀疏度
+        max_edges = n * n  # 包括自环
+        density = float(n_edges / max_edges) if max_edges > 0 else 0.0
+        sparsity = 1.0 - density
+        
+        statistics = {
+            'num_nodes': int(n),
+            'num_edges': int(n_edges),
+            'density': density,
+            'sparsity': sparsity,
+            'avg_weight': avg_weight,
+            'max_weight': max_weight,
+            'min_nonzero_weight': min_nonzero_weight,
+            'threshold_used': threshold,
+            'in_degrees': {
+                'mean': float(np.mean(in_degrees)),
+                'std': float(np.std(in_degrees)),
+                'max': int(np.max(in_degrees)),
+                'min': int(np.min(in_degrees))
+            },
+            'out_degrees': {
+                'mean': float(np.mean(out_degrees)),
+                'std': float(np.std(out_degrees)),
+                'max': int(np.max(out_degrees)),
+                'min': int(np.min(out_degrees))
+            }
+        }
+        
+        logger.debug(f"Graph statistics: {n} nodes, {n_edges} edges, "
+                    f"density={density:.3f}, sparsity={sparsity:.3f}")
+        
+        return statistics
     
     def load_cached_graph(
         self,
