@@ -17,13 +17,8 @@ from api.schemas import (
 
 logger = logging.getLogger(__name__)
 
-# 尝试导入增强版预测器
-try:
-    from api.predictor_enhanced import EnhancedStockPredictor as StockPredictor
-    logger.info("Using EnhancedStockPredictor")
-except Exception as e:
-    logger.warning(f"Could not load EnhancedStockPredictor: {e}, using basic version")
-    from api.predictor import StockPredictor
+# 使用增强版 predictor.py (已集成 predictor_enhanced 的功能)
+from api.predictor import StockPredictor
 
 logger = logging.getLogger(__name__)
 
