@@ -108,7 +108,7 @@ def discover_with_cutsplus(self, data, threshold_type='adaptive', **kwargs):
 
 ### 文档
 
-- `docs/PHASE3_TASK2_COMPLETION.md`
+- `docs/phase3/PHASE3_TASK2_COMPLETION.md`
 
 ---
 
@@ -160,7 +160,7 @@ UnifiedPipeline
 
 ### 文档
 
-- `docs/PHASE3_TASK3_PROPER_IMPLEMENTATION.md`
+- `docs/phase3/PHASE3_TASK3_PROPER_IMPLEMENTATION.md`
 
 ---
 
@@ -242,7 +242,7 @@ Test 7: 组件加载 - ✅ 所有组件正常
 
 ### 文档
 
-- `docs/PREDICTOR_FILES_ANALYSIS.md`
+- `docs/phase3/PREDICTOR_FILES_ANALYSIS.md`
 
 ---
 
@@ -331,7 +331,7 @@ HCSF/
 
 ### 文档
 
-- `docs/PERFORMANCE_OPTIMIZATION.md` (使用指南)
+- `docs/phase3/PERFORMANCE_OPTIMIZATION.md` (使用指南)
 
 ---
 
