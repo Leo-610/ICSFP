@@ -141,3 +141,14 @@ res/glove.twitter.27B.*.txt
 
 # Results
 results/
+
+# Cache directories (Performance Optimizer)
+demo_cache/
+test_cache/
+cache/
+.cache/
+*_cache/
+
+# Joblib cache
+joblib_cache/
+
