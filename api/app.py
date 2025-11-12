@@ -15,6 +15,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from api.routes import register_routes
 from api.trading_routes import register_trading_routes
 from api.realtime_routes import register_realtime_routes
+from api.enhanced_routes import register_enhanced_routes
 from api.middleware import error_handler, request_logger
 
 # 配置日志
@@ -85,6 +86,10 @@ def create_app(config_path='config.yml'):
     register_routes(app)
     register_trading_routes(app)
     register_realtime_routes(app, enable_websocket=True)
+    register_enhanced_routes(app)  # Phase 3 增强功能路由
+    
+    logger.info("✅ All routes registered successfully")
+    logger.info("📊 Enhanced routes available at /api/v1/enhanced/*")
     
     # 首页路由 - 提供Web界面
     @app.route('/')

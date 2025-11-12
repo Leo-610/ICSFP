@@ -1,1 +1,1 @@
-{"symbol": "AAPL", "price": 269.25, "open": 268.59, "high": 269.57, "low": 266.93, "volume": 7722614, "previous_close": 270.04, "change": -0.7799988, "change_percent": -0.28885636, "timestamp": "2025-11-05T22:58:27.152271", "market_cap": 3978680860672, "source": "yahoo_finance"}
+{"symbol": "AAPL", "price": 275.25, "open": 269.81, "high": 275.845, "low": 269.8, "volume": 45848160, "previous_close": 269.43, "change": 5.82001, "change_percent": 2.16012, "timestamp": "2025-11-12T17:39:26.128320", "market_cap": 4067191160832, "source": "yahoo_finance"}
