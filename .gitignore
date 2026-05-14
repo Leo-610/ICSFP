@@ -3,6 +3,39 @@ api_keys.yml
 *.key
 *.secret
 .env
+.env.*
+!.env.example
+
+# SSL/TLS 证书与私钥（阿里云/Let's Encrypt/自签名）
+*.pem
+*.crt
+*.cer
+*.p12
+*.pfx
+*.jks
+*.csr
+
+# SSH 私钥
+id_rsa
+id_rsa.*
+id_ed25519
+id_ed25519.*
+id_ecdsa
+id_ecdsa.*
+*.ppk
+
+# 阿里云 / 云服务商凭证
+aliyun_credentials
+credentials.json
+service_account*.json
+*_accesskey*.yml
+*_accesskey*.json
+
+# Nginx / 服务器配置（含证书路径或服务器IP）
+nginx.conf
+nginx_*.conf
+*.conf.d
+server_config.py
 
 # Files with hardcoded credentials (reviewer safety)
 test_tushare_access.py
