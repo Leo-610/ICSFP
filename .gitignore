@@ -6,6 +6,14 @@ api_keys.yml
 .env.*
 !.env.example
 
+# 答辩/汇报材料（含个人信息）
+*答辩*.pptx
+*答辩*.ppt
+*汇报*.pptx
+*汇报*.ppt
+中期答辩_ICSFP.pptx
+docs/archive/中期答辩*
+
 # SSL/TLS 证书与私钥（阿里云/Let's Encrypt/自签名）
 *.pem
 *.crt
