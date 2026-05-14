@@ -7,55 +7,83 @@
 
 **ICSFP** 是一个基于因果推理和深度学习的智能股票预测平台，集成了实时数据获取、模型训练、预测分析和可视化展示等完整功能。
 
+> **📄 论文代码：** 本仓库包含 CIKM 2026 投稿论文  
+> *"HCSF: Hierarchical Causal Stock Forecasting via Granger Causality Discovery and Sentiment Injection for Chinese A-Share Markets"*  
+> 的完整实验代码与复现脚本。
+
 ---
 
-## ✨ 最新功能 (v2.0)
+## 🔬 快速复现论文实验
 
-### 🌐 Web可视化界面
+> 以下脚本对应论文 Table 2（滚动多期评估）和 Table 1（主实验）。
+
+### 环境准备
+
+```bash
+git clone https://github.com/Leo-610/ICSFP.git
+cd ICSFP/HCSF
+conda create -n ic_sfp_gpu python=3.12
+conda activate ic_sfp_gpu
+pip install -r requirements.txt
+```
+
+### Step 1：构建 Granger 因果图
+
+```bash
+# 构建 200 支 A 股的 Granger 因果图（对应论文 Section 3.1）
+python compute_astock_causal_graph.py --config config_astock.yml
+```
+
+输出：`causal_graph_astock.npy`（200×200 有向邻接矩阵）
+
+### Step 2：滚动多期评估（Table 2）
+
+```bash
+# 三年滚动评估：2022 / 2023 / 2024 各独立训练+测试
+# 对应论文 Table 2（Mean ± Std across three periods）
+python run_rolling_eval.py --config config_astock.yml
+```
+
+结果写入 `rolling_results/results.json`，汇总见 `rolling_results/summary.txt`
+
+### Step 3：单期主实验（Table 1）
+
+```bash
+# 单次测试窗口：2024-11-18 到 2025-01-02
+python Main.py --config config_astock.yml --mode test
+```
+
+### 关键配置参数（`config_astock.yml`）
+
+| 参数 | 值 | 说明 |
+|------|----|------|
+| `n_stocks` | 200 | A 股股票数量 |
+| `lookback` | 5 | 滑动窗口天数 |
+| `granger_alpha` | 0.05 | Granger 显著性阈值 |
+| `cell_type` | gru | RNN 单元 |
+| `dropout` | 0.2 | Dropout 率 |
+| `learning_rate` | 0.001 | Adam 学习率 |
+| `patience` | 25 | Early stopping（Val MCC） |
+
+---
+
+## ✨ 平台功能 (v2.0)
+
+### 🌐 Web 可视化界面
 - **高级可视化页面**: 多图表展示（价格、成交量、波动率）
-- **实时数据监控**: WebSocket实时推送
-- **多天预测**: 支持1-7天的预测展示
-- **响应式设计**: 完美适配PC和移动端
+- **实时数据监控**: WebSocket 实时推送
+- **多天预测**: 支持 1–7 天的预测展示
+- **响应式设计**: 完美适配 PC 和移动端
 
 ### 🔌 实时数据模块
-- **多数据源支持**: Yahoo Finance、Alpha Vantage、Tushare
+- **多数据源支持**: Yahoo Finance、Alpha Vantage、Tushare（需配置环境变量 `TUSHARE_TOKEN`）
 - **智能缓存**: 双层缓存机制（内存+文件）
-- **实时报价**: 毫秒级数据更新
 - **批量获取**: 支持多只股票同时查询
 
-### 🎯 实时预测系统
-- **单只/批量预测**: 灵活的预测接口
-- **多天预测**: 未来1-7天趋势预测
-- **因果增强**: 可选的因果图增强预测
-- **置信度评估**: 提供预测置信度和概率分布
-
----
-
-## 🎯 核心特性
-
-### 模型能力
-- 🧠 **深度学习模型**: 基于GRU/LSTM的时序预测
-- 🔗 **因果图增强**: 利用股票间因果关系提升预测
-- 📊 **多特征融合**: 整合价格、成交量、文本等多源数据
-- 🎲 **VAE架构**: 变分自编码器建模不确定性
-
-### 数据处理
-- 📈 **实时数据获取**: 支持多个数据源
-- 🗂️ **智能缓存**: 优化数据访问性能
-- 🔄 **自动更新**: 定时刷新市场数据
-- 📝 **历史数据**: 完整的历史数据查询
-
-### API服务
-- 🌐 **RESTful API**: 标准的HTTP接口
-- 🔌 **WebSocket**: 实时双向通信
-- 📡 **批量处理**: 支持批量预测请求
-- 📊 **数据导出**: JSON格式数据输出
-
-### 可视化
-- 📊 **多图表展示**: Chart.js专业图表
-- 🎨 **精美界面**: 现代化UI设计
-- 📱 **响应式布局**: 适配各种设备
-- ⚡ **实时更新**: 动态数据刷新
+### 🎯 预测系统
+- **因果图增强**: Granger 因果图 + GAT 聚合
+- **情感注入**: 离线词典/RoBERTa 情感分数
+- **置信度评估**: 提供预测置信度和 MCC 指标
 
 ---
 
@@ -72,7 +100,7 @@
 
 ```bash
 # 克隆仓库
-git clone https://github.com/your-username/ICSFP.git
+git clone https://github.com/Leo-610/ICSFP.git
 cd ICSFP/HCSF
 
 # 创建虚拟环境
@@ -390,18 +418,23 @@ pip install flask-socketio python-socketio
 
 ---
 
-## 📈 性能指标
+## 📈 性能指标（论文结果）
 
-### 预测性能
-- **准确率**: 52-60% (市场随机50%)
-- **MCC**: 0.05-0.15
-- **预测时间**: <100ms/股票
+### HCSF 滚动多期评估（2022 / 2023 / 2024）
+
+| 配置 | Acc (%) | MCC | Macro-F1 |
+|------|---------|-----|----------|
+| Baseline（无情感） | 50.6 ± 2.5 | 0.005 ± 0.010 | 0.23 ± 0.28 |
+| StockNet-CN（外部基线） | 48.4 [47.1, 50.7] | 0.001 [-0.002, 0.006] | 0.57 [0.43, 0.64] |
+| HCSF-Lex | **60.7 ± 0.3** | **0.209 ± 0.008** | **0.553 ± 0.015** |
+| HCSF-RoBERTa | 59.6 ± 1.0 | 0.189 ± 0.021 | 0.541 ± 0.029 |
+
+括号内为 50,000 次 bootstrap 95% CI（n=3 期）。
 
 ### 系统性能
-- **API响应**: <200ms
-- **WebSocket延迟**: <50ms
-- **缓存命中率**: >80%
-- **并发支持**: 100+客户端
+- **端到端日度推理延迟**: < 8 分钟（消费级笔记本 GPU）
+- **API 响应**: < 200ms
+- **并发支持**: 100+ 客户端
 
 ---
 
@@ -432,14 +465,13 @@ MIT License - 详见 [LICENSE](LICENSE) 文件
 
 ## 👥 团队
 
-ICSFP由AI研究团队开发和维护。
+ICFSP 由 **Leo 研究团队**开发和维护。
 
 ---
 
 ## 📞 联系方式
 
-- 问题反馈: [GitHub Issues](https://github.com/your-username/ICSFP/issues)
-- 邮箱: your-email@example.com
+- 问题反馈: [GitHub Issues](https://github.com/Leo-610/ICSFP/issues)
 
 ---
 
