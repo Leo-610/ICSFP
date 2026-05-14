@@ -201,6 +201,7 @@ class DataPipe:
         prices_and_ts = {
             'T': T,
             'ts': ts,
+            'ts_iso': [d.isoformat() for d in ts],  # 交易日期字符串列表，供情感对齐使用
             'ys': ys,
             'main_mv_percent': main_mv_percent,
             'mv_percents': mv_percents,
@@ -251,7 +252,17 @@ class DataPipe:
                                 if not text:
                                     continue
 
-                                words = text[:self.max_n_words]
+                                # ACL18 推文是英文句子字符串，这里必须先按词切分；
+                                # 原先直接 text[:N] 会退化为字符级序列，严重损伤词表匹配。
+                                if isinstance(text, list):
+                                    words = [str(w).strip().lower() for w in text if str(w).strip()]
+                                else:
+                                    words = [w.strip().lower() for w in str(text).split() if w.strip()]
+
+                                if not words:
+                                    continue
+
+                                words = words[:self.max_n_words]
                                 word_ids = self._convert_words_to_ids(words, vocab_id_dict)
                                 n_words = len(word_ids)
 
@@ -391,6 +402,7 @@ class DataPipe:
                 # meta info
                 'stock': self._convert_token_to_id(s, stock_id_dict),
                 'main_target_date': main_target_date.isoformat(),
+                'ts_iso': prices_and_ts['ts_iso'],
                 'T': prices_and_ts['T'],
                 # target
                 'ys': prices_and_ts['ys'],
@@ -429,6 +441,7 @@ class DataPipe:
             ss_index_batch = np.zeros([batch_size, self.max_n_days, self.max_n_msgs], dtype=np.int32)
             n_msgs_batch = np.zeros([batch_size, self.max_n_days], dtype=np.int32)
             n_words_batch = np.zeros([batch_size, self.max_n_days, self.max_n_msgs], dtype=np.int32)
+            ts_iso_batch = np.full([batch_size, self.max_n_days], '', dtype='U10')  # 交易日期字符串
 
             sample_id = 0
             while sample_id < batch_size and generators:
@@ -449,6 +462,7 @@ class DataPipe:
                     ss_index_batch[sample_id, :T] = sample_dict['ss_indices']
                     n_msgs_batch[sample_id, :T] = sample_dict['n_msgs']
                     n_words_batch[sample_id, :T] = sample_dict['n_words']
+                    ts_iso_batch[sample_id, :T] = sample_dict['ts_iso']
 
                     sample_id += 1
                 except StopIteration:
@@ -472,6 +486,7 @@ class DataPipe:
                 'ss_index_batch': ss_index_batch[:sample_id],
                 'n_msgs_batch': n_msgs_batch[:sample_id],
                 'n_words_batch': n_words_batch[:sample_id],
+                'ts_iso_batch': ts_iso_batch[:sample_id],  # 交易日期字符串
             }
 
             yield batch_dict
@@ -496,6 +511,7 @@ class DataPipe:
             word_batch = np.zeros([batch_size, self.max_n_days, self.max_n_msgs, self.max_n_words], dtype=np.int32)
             ss_index_batch = np.zeros([batch_size, self.max_n_days, self.max_n_msgs], dtype=np.int32)
             main_mv_percent_batch = np.zeros([batch_size, ], dtype=np.float32)
+            ts_iso_batch = np.full([batch_size, self.max_n_days], '', dtype='U10')  # 交易日期字符串
 
             sample_id = 0
             while True:
@@ -516,6 +532,7 @@ class DataPipe:
                     ss_index_batch[sample_id, :T] = sample_info_dict['ss_indices']
                     n_msgs_batch[sample_id, :T] = sample_info_dict['n_msgs']
                     n_words_batch[sample_id, :T] = sample_info_dict['n_words']
+                    ts_iso_batch[sample_id, :T] = sample_info_dict['ts_iso']
 
                     sample_id += 1
                 except StopIteration:
@@ -541,6 +558,7 @@ class DataPipe:
                 'ss_index_batch': ss_index_batch[:sample_id],
                 'n_msgs_batch': n_msgs_batch[:sample_id],
                 'n_words_batch': n_words_batch[:sample_id],
+                'ts_iso_batch': ts_iso_batch[:sample_id],  # 交易日期字符串
             }
 
             yield batch_dict

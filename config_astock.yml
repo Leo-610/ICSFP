@@ -1,0 +1,214 @@
+dir_name: outputs_astock
+task_name: astock_causal_discovery
+
+log:
+  stdout: true
+  stderr: false
+  tensorboard: true
+
+model:
+  mode: 'all'
+  variant_type: 'hedge' # hedge, tech, fund, discriminative
+  alpha: 0.5 # 0.1, 0.3, 0.5, 0.7, 0.9, 1.0
+  dropout_vmd_in: 0.3
+  dropout_mel_in: 0.3
+  n_epochs: 20  # A股数据量较大，增加训练轮数
+  batch_size: 32
+
+  kl_lambda_anneal_rate: 0.005  # 0.005, 0.002, 0.001, 0.0005
+  kl_lambda_start_step: 0
+  daily_att: 'y'  # y, g
+
+  vmd_rec: 'zh'  # zh or h (中文新闻)
+
+  opt: 'adam'  # sgd, adam
+  lr: 0.001
+  clip: 15.0
+
+  y_size: 2
+  use_constant_kl_lambda: 0
+  constant_kl_lambda: 0.1
+
+  word_embed_type: 'glove'  # 需要中文词向量
+  weight_init: 'xavier-uniform'
+  mel_cell_type: 'gru'  # basic, gru, ln-lstm
+  vmd_cell_type: 'gru'  # basic, gru, ln-lstm
+
+  word_embed_size: 300
+  stock_embed_size: 150
+  init_stock_with_word: 0
+  mel_h_size: 100
+  h_size: 150
+  g_size: 50
+
+  shuffle: 1
+  max_n_days: 5
+  max_n_msgs: 30
+  max_n_words: 40
+
+  decay_step: 100
+  decay_rate: 0.96
+  momentum: 0.9
+
+  use_in_bn: 0
+  use_o_bn: 0
+  use_g_bn: 0
+  dropout_mel: 0.2   # GRU内部正则（原0.0）
+  dropout_ce: 0.2    # 上下文编码器正则（原0.0）
+  dropout_vmd: 0.2   # 变分预测器正则（原0.0）
+  early_stopping_patience: 25  # 连续25次eval无提升则停止（约覆盖1个完整Epoch，原8太紧）
+
+# A股数据集日期范围
+dates:
+  train_start_date: '2020-01-02'
+  train_end_date: '2024-04-08'
+  dev_start_date: '2024-04-09'
+  dev_end_date: '2024-11-15'
+  test_start_date: '2024-11-18'
+  test_end_date: '2025-01-02'
+
+data:
+  # A股数据特定配置
+  name: astock_returns
+  feature: return  # return, close, high, low
+  normalization: standard  # standard, minmax, none
+  
+  # 数据时间范围
+  date_range:
+    train_start: '2020-01-02'
+    train_end: '2024-04-08'
+    dev_start: '2024-04-09'
+    dev_end: '2024-11-15'
+    test_start: '2024-11-18'
+    test_end: '2026-01-30'
+  
+  # 股票选择
+  stock_selection:
+    method: all  # all, sector, manual
+    sectors: []
+    stocks: []
+
+  # 缺失数据配置
+  missing: 
+    name: mixed  # random, block, mixed
+    params:
+      p_missing: 0.1  # A股市场较少停牌
+      block_size_min: 5
+      block_size_max: 20
+
+# A股股票池 (200只: 原始48 + 新增152, 优先中证800成分股)
+stocks:
+  sz_stocks: ['000001.SZ', '000002.SZ', '000027.SZ', '000063.SZ', '000155.SZ',
+              '000333.SZ', '000338.SZ', '000568.SZ', '000591.SZ', '000630.SZ',
+              '000651.SZ', '000661.SZ', '000683.SZ', '000776.SZ', '000792.SZ',
+              '000799.SZ', '000807.SZ', '000831.SZ', '000876.SZ', '000932.SZ',
+              '000938.SZ', '000963.SZ', '000977.SZ', '000983.SZ', '000987.SZ',
+              '001696.SZ', '002007.SZ', '002008.SZ', '002027.SZ', '002049.SZ',
+              '002056.SZ', '002065.SZ', '002120.SZ', '002130.SZ', '002131.SZ',
+              '002142.SZ', '002156.SZ', '002174.SZ', '002185.SZ', '002195.SZ',
+              '002202.SZ', '002230.SZ', '002236.SZ', '002241.SZ', '002252.SZ',
+              '002273.SZ', '002281.SZ', '002304.SZ', '002340.SZ', '002352.SZ',
+              '002371.SZ', '002384.SZ', '002385.SZ', '002422.SZ', '002436.SZ',
+              '002456.SZ', '002460.SZ', '002466.SZ', '002475.SZ', '002600.SZ',
+              '002624.SZ', '002714.SZ', '002739.SZ', '002797.SZ', '002958.SZ',
+              '300001.SZ', '300003.SZ', '300014.SZ', '300015.SZ', '300024.SZ',
+              '300058.SZ', '300059.SZ', '300115.SZ', '300136.SZ', '300274.SZ',
+              '300339.SZ', '300347.SZ', '300373.SZ', '300408.SZ', '300418.SZ',
+              '300433.SZ', '300458.SZ', '300502.SZ', '300623.SZ', '300735.SZ',
+              '300748.SZ', '300750.SZ', '300760.SZ', '300999.SZ']
+  sh_stocks: ['600000.SH', '600016.SH', '600021.SH', '600036.SH', '600050.SH',
+              '600095.SH', '600143.SH', '600150.SH', '600171.SH', '600183.SH',
+              '600196.SH', '600208.SH', '600276.SH', '600298.SH', '600352.SH',
+              '600362.SH', '600372.SH', '600392.SH', '600415.SH', '600436.SH',
+              '600438.SH', '600460.SH', '600489.SH', '600498.SH', '600511.SH',
+              '600515.SH', '600516.SH', '600519.SH', '600536.SH', '600546.SH',
+              '600570.SH', '600580.SH', '600584.SH', '600585.SH', '600600.SH',
+              '600606.SH', '600704.SH', '600739.SH', '600760.SH', '600763.SH',
+              '600779.SH', '600809.SH', '600816.SH', '600837.SH', '600879.SH',
+              '600887.SH', '600893.SH', '600900.SH', '600905.SH', '600906.SH',
+              '600918.SH', '600938.SH', '600958.SH', '600988.SH', '601016.SH',
+              '601066.SH', '601108.SH', '601117.SH', '601162.SH', '601166.SH',
+              '601168.SH', '601179.SH', '601186.SH', '601211.SH', '601216.SH',
+              '601236.SH', '601238.SH', '601288.SH', '601318.SH', '601360.SH',
+              '601390.SH', '601398.SH', '601456.SH', '601600.SH', '601601.SH',
+              '601607.SH', '601615.SH', '601618.SH', '601628.SH', '601668.SH',
+              '601669.SH', '601696.SH', '601698.SH', '601728.SH', '601766.SH',
+              '601788.SH', '601800.SH', '601816.SH', '601857.SH', '601868.SH',
+              '601888.SH', '601901.SH', '601919.SH', '601939.SH', '601985.SH',
+              '601988.SH', '601990.SH', '601995.SH', '603000.SH', '603019.SH',
+              '603087.SH', '603259.SH', '603589.SH', '603799.SH', '603858.SH',
+              '603986.SH', '603993.SH', '605358.SH', '688185.SH', '688256.SH',
+              '688981.SH']
+
+# 因果发现配置（CUTS+）
+reproduc:
+  seed: 42
+  benchmark: false
+  deterministic: true
+
+sota:
+  cuts_plus:
+    # 网络结构 - A股市场规模
+    n_nodes: 200  # A股股票数量（扩充后200只）
+    input_step: 1
+    batch_size: 128
+    data_dim: 1
+    total_epoch: 150  # 更多轮次以学习复杂关系
+    
+    # 分组策略 - A股市场优化
+    n_groups: 25  # 200只股票分25组（每组约8只）
+    group_policy: multiply_2_every_30
+    
+    # 监督策略
+    supervision_policy: masked_before_200
+    fill_policy: rate_0.1_after_30
+    show_graph_every: 20
+    
+    # 数据预测模型 - A股时间序列优化
+    data_pred:
+      model: multi_lstm
+      pred_step: 1
+      mlp_hid: 64
+      gru_layers: 2
+      shared_weights_decoder: false
+      concat_h: true
+      lr_data_start: 5e-3
+      lr_data_end: 1e-4
+      weight_decay: 1e-4
+      prob: true
+      dropout: 0.3  # A股波动性大，加强正则化
+      
+    # 图发现参数 - A股相关性特点
+    graph_discov:
+      lambda_s_start: 0.08  # 适中的稀疏性
+      lambda_s_end: 0.01
+      lr_graph_start: 5e-4
+      lr_graph_end: 5e-5
+      start_tau: 1.2
+      end_tau: 0.1
+      dynamic_sampling_milestones: [0]
+      dynamic_sampling_periods: [1]
+      
+    # 因果阈值 - A股板块效应明显
+    causal_thres: value_0.25  # 相对宽松以捕捉板块联动
+    
+# 分析配置
+analysis:
+  top_k_relationships: 30  # 显示更多因果关系
+  save_figures: true
+  figure_format: png
+  figure_dpi: 300
+
+# 路径配置 - A股数据路径
+paths:
+  data: 'data/astock_formatted/'
+  tweet_retrieved: 'tweet/'
+  tweet_preprocessed: 'tweet/'
+  price: 'price/'
+  res: 'res/'
+  glove: 'sgns.financial.word'  # 中文金融词向量 467370词×300维
+  vocab_tweet: 'vocab_astock.txt'
+  graphs: 'graphs_astock'
+  checkpoints: 'checkpoints_astock'
+  log: 'log_astock/'
+  root: 'HCSF/'

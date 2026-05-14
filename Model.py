@@ -70,6 +70,7 @@ class Model(nn.Module):
         self.dropout_train_ce = config_model['dropout_ce']
         self.dropout_train_vmd_in = config_model['dropout_vmd_in']
         self.dropout_train_vmd = config_model['dropout_vmd']
+        self.early_stopping_patience = config_model.get('early_stopping_patience', 8)
 
         # Global step counter
         self.global_step = 0
@@ -161,7 +162,9 @@ class Model(nn.Module):
             # E (文本) + S (价格) + Z (因果变量)
             final_input_size = self.corpus_embed_size + 3 + self.causal_z_size
         else:
-            final_input_size = self.g_size + self.g_size  # 原有的融合方式
+            # 非因果路径: att_c([y_size或g_size]) + g_T([g_size])
+            att_ctx_size = self.y_size if self.daily_att == 'y' else self.g_size
+            final_input_size = att_ctx_size + self.g_size
 
         self.final_prediction = nn.Linear(final_input_size, self.y_size)
 
@@ -256,19 +259,19 @@ class Model(nn.Module):
         if self.graph is None:
             return None
 
-        # 初始化因果变量 [batch_size, max_days, causal_z_size]
-        causal_Z = torch.zeros(batch_size, self.max_n_days, self.causal_z_size).to(device)
+        # 使用列表收集每个时间步的因果变量，避免 inplace 操作
+        causal_Z_list = []
 
         # 初始化 Z^{(0)}
-        causal_Z[:, 0, :] = torch.randn(batch_size, self.causal_z_size).to(device)
+        Z_0 = torch.randn(batch_size, self.causal_z_size).to(device)
+        causal_Z_list.append(Z_0)
 
         stock_batch_cpu = stock_batch.cpu()
         graph_batch = self.graph[stock_batch_cpu][:, stock_batch_cpu].to(device)
 
         # 时序递推生成因果变量
+        Z_prev = Z_0
         for t in range(1, self.max_n_days):
-            Z_prev = causal_Z[:, t-1, :]  # [batch_size, causal_z_size]
-
             # 第一项: W1^{(t)} Z_i^{(t-1)}
             term1 = self.causal_w1[t](Z_prev)  # [batch_size, causal_z_size]
 
@@ -279,7 +282,12 @@ class Model(nn.Module):
             term2 = self.causal_w2[t](causal_influence_activated)
 
             # 组合并激活
-            causal_Z[:, t, :] = torch.sigmoid(term1 + term2)
+            Z_t = torch.sigmoid(term1 + term2)
+            causal_Z_list.append(Z_t)
+            Z_prev = Z_t
+
+        # 将列表堆叠成张量 [batch_size, max_days, causal_z_size]
+        causal_Z = torch.stack(causal_Z_list, dim=1)
 
         return causal_Z
 

@@ -45,10 +45,10 @@ class Executor:
             self.scheduler = None
 
     def _to_tensor(self, batch_dict):
-        """将numpy数组转换为PyTorch张量并移动到设备"""
+        """将numpy数组转换为PyTorch张量并移动到设备（字符串数组原样保留）"""
         tensor_dict = {}
         for key, value in batch_dict.items():
-            if isinstance(value, np.ndarray):
+            if isinstance(value, np.ndarray) and np.issubdtype(value.dtype, np.number):
                 tensor_dict[key] = torch.from_numpy(value).to(self.device)
             else:
                 tensor_dict[key] = value
@@ -120,7 +120,7 @@ class Executor:
             )
             n_iter += 1
 
-    def generation(self, phase):
+    def generation(self, phase, use_mcc=False):
         """验证/测试阶段的生成"""
         self.model.eval()
 
@@ -165,7 +165,7 @@ class Executor:
                 batch_size = float(gen_batch_dict['batch_size'])
                 gen_size += batch_size
 
-        results = metrics.eval_res(gen_n_acc, gen_size, gen_loss_list, y_list, y_list_)
+        results = metrics.eval_res(gen_n_acc, gen_size, gen_loss_list, y_list, y_list_, use_mcc=use_mcc)
         return results
 
     def train_and_dev(self):
@@ -180,13 +180,23 @@ class Executor:
         start_epoch = 0
 
         if os.path.exists(checkpoint_path):
-            checkpoint = torch.load(checkpoint_path, map_location=self.device)
-            self.model.load_state_dict(checkpoint['model_state_dict'])
-            self.optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
-            start_epoch = checkpoint['epoch']
-            self.model.global_step = checkpoint['global_step']
-            logger.info('Model: {0}, session restored from epoch {1}!'.format(
-                self.model.model_name, start_epoch))
+            try:
+                checkpoint = torch.load(checkpoint_path, map_location=self.device, weights_only=False)
+                # 使用 strict=False 来兼容不同版本的模型
+                missing, unexpected = self.model.load_state_dict(checkpoint['model_state_dict'], strict=False)
+                if missing:
+                    logger.warning(f'Missing keys in checkpoint: {missing}')
+                if unexpected:
+                    logger.warning(f'Unexpected keys in checkpoint (ignored): {unexpected}')
+                self.optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
+                start_epoch = checkpoint['epoch']
+                self.model.global_step = checkpoint['global_step']
+                logger.info('Model: {0}, session restored from epoch {1}!'.format(
+                    self.model.model_name, start_epoch))
+            except Exception as e:
+                logger.warning(f'Failed to load checkpoint: {e}')
+                logger.info('Starting fresh training...')
+                start_epoch = 0
         else:
             logger.info('Model: {0}, start a new session!'.format(self.model.model_name))
 
@@ -292,12 +302,15 @@ class Executor:
         checkpoint_path = os.path.join(self.model.tf_checkpoints_path, 'model.pth')
 
         if os.path.exists(checkpoint_path):
-            checkpoint = torch.load(checkpoint_path, map_location=self.device)
-            self.model.load_state_dict(checkpoint['model_state_dict'])
+            checkpoint = torch.load(checkpoint_path, map_location=self.device, weights_only=False)
+            # 使用 strict=False 来兼容不同版本的模型
+            missing, unexpected = self.model.load_state_dict(checkpoint['model_state_dict'], strict=False)
+            if unexpected:
+                logger.warning(f'Unexpected keys in checkpoint (ignored): {unexpected}')
             logger.info('Model: {0}, session restored!'.format(self.model.model_name))
         else:
             logger.info('Model: {0}: NOT found!'.format(self.model.model_name))
             raise FileNotFoundError(f"No checkpoint found at {checkpoint_path}")
 
-        res = self.generation(phase='test')
-        stat_logger.print_eval_res(res)
+        res = self.generation(phase='test', use_mcc=True)
+        stat_logger.print_eval_res(res, use_mcc=True)

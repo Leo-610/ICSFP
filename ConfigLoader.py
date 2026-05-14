@@ -27,7 +27,9 @@ class PathParser:
         self.movement = os.path.join(self.data, config_path['price'])
         self.vocab = os.path.join(self.res, config_path['vocab_tweet'])
 
-config_fp = os.path.join(os.path.dirname(__file__), 'config.yml')
+# 支持通过环境变量 HCSF_CONFIG 指定配置文件（用于多数据集切换）
+_config_name = os.environ.get('HCSF_CONFIG', 'config.yml')
+config_fp = os.path.join(os.path.dirname(__file__), _config_name)
 # Python 3 compatible yaml loading
 with open(config_fp, 'r', encoding='utf-8') as f:
     config = yaml.safe_load(f)
@@ -38,7 +40,8 @@ dates = config['dates']
 
 config_stocks = config['stocks']  # a list of lists
 list_of_lists = [config_stocks[key] for key in config_stocks]
-stock_symbols = list(itertools.chain.from_iterable(list_of_lists))
+_all_stocks = list(itertools.chain.from_iterable(list_of_lists))
+stock_symbols = sorted(set(_all_stocks))  # deduplicate + sort to match causal graph ordering
 ss_size = len(stock_symbols)
 
 path_parser = PathParser(config_path=config['paths'])

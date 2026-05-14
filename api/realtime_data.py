@@ -226,7 +226,29 @@ class TushareSource(DataSource):
                 start_date=start_date.replace('-', ''),
                 end_date=end_date.replace('-', '')
             )
+            
+            if df.empty:
+                logger.warning(f"No historical data returned for {symbol} from {start_date} to {end_date}")
+                return pd.DataFrame()
+            
+            # 标准化列名：Tushare使用小写列名，需要转换
+            df = df.rename(columns={
+                'trade_date': 'Date',
+                'open': 'Open',
+                'high': 'High',
+                'low': 'Low',
+                'close': 'Close',
+                'vol': 'Volume'
+            })
+            
+            # 设置日期索引
+            if 'Date' in df.columns:
+                df['Date'] = pd.to_datetime(df['Date'], format='%Y%m%d')
+                df.set_index('Date', inplace=True)
+                df.sort_index(inplace=True)
+            
             df['Symbol'] = symbol
+            logger.info(f"Retrieved {len(df)} records for {symbol} from Tushare")
             return df
         except Exception as e:
             logger.error(f"Error fetching historical data for {symbol}: {e}")
@@ -468,19 +490,49 @@ class RealtimeDataManager:
         Returns:
             历史数据DataFrame
         """
-        # 确定数据源
-        if source and source in self.data_sources:
-            data_source = self.data_sources[source]
-        else:
-            if not self.data_sources:
-                raise RuntimeError("No data sources available")
-            data_source = list(self.data_sources.values())[0]
+        if not self.data_sources:
+            raise RuntimeError("No data sources available")
         
-        try:
-            return data_source.get_historical_data(symbol, start_date, end_date)
-        except Exception as e:
-            logger.error(f"Error fetching historical data for {symbol}: {e}")
-            raise
+        # 如果指定了数据源，优先使用
+        if source and source in self.data_sources:
+            try:
+                return self.data_sources[source].get_historical_data(symbol, start_date, end_date)
+            except Exception as e:
+                logger.warning(f"Specified source {source} failed for {symbol}: {e}")
+        
+        # 优先级：tushare > yahoo_finance > alpha_vantage
+        source_priority = ['tushare', 'yahoo_finance', 'alpha_vantage']
+        
+        # 按优先级尝试每个可用的数据源
+        for source_name in source_priority:
+            if source_name in self.data_sources:
+                try:
+                    logger.info(f"Attempting to fetch historical data for {symbol} from {source_name}")
+                    df = self.data_sources[source_name].get_historical_data(symbol, start_date, end_date)
+                    if df is not None and not df.empty:
+                        logger.info(f"Successfully fetched {len(df)} records for {symbol} from {source_name}")
+                        return df
+                except Exception as e:
+                    logger.warning(f"Failed to fetch from {source_name} for {symbol}: {e}")
+                    continue
+        
+        # 如果所有优先源都失败，尝试剩余的源
+        for source_name, data_source in self.data_sources.items():
+            if source_name not in source_priority:
+                try:
+                    logger.info(f"Attempting to fetch historical data for {symbol} from {source_name}")
+                    df = data_source.get_historical_data(symbol, start_date, end_date)
+                    if df is not None and not df.empty:
+                        logger.info(f"Successfully fetched {len(df)} records for {symbol} from {source_name}")
+                        return df
+                except Exception as e:
+                    logger.warning(f"Failed to fetch from {source_name} for {symbol}: {e}")
+                    continue
+        
+        # 所有数据源都失败
+        error_msg = f"All data sources failed for {symbol}"
+        logger.error(error_msg)
+        raise RuntimeError(error_msg)
     
     def update_cache(self, symbols: List[str]):
         """更新缓存数据"""
@@ -566,7 +618,10 @@ def get_realtime_manager(config: Optional[Dict] = None) -> RealtimeDataManager:
                 'data_sources': {
                     'yahoo_finance': {'enabled': True},
                     'alpha_vantage': {'enabled': False},
-                    'tushare': {'enabled': False}
+                    'tushare': {
+                        'enabled': True,
+                        'token': os.environ.get('TUSHARE_TOKEN', '')
+                    }
                 },
                 'watch_list': []
             }

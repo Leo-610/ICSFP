@@ -44,9 +44,9 @@ def parse_args():
     parser.add_argument(
         '--dataset', 
         type=str, 
-        default='ACL18',
-        choices=['ACL18', 'CMIN-CN', 'CIKM18'],
-        help='选择数据集 (默认: ACL18)'
+        default='astock',
+        choices=['ACL18', 'CMIN-CN', 'CIKM18', 'astock'],
+        help='选择数据集 (默认: astock)'
     )
     
     parser.add_argument(
